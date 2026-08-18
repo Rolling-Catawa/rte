@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排错与性能 · RTE 脚本手册</title>
+<meta name="description" content="脚本不动、报错、掉帧、内存涨——按现象查。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html" class="on">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 排错与性能</div>
+<h1>排错与性能</h1>
+<p class="lede">脚本不动、报错、掉帧、内存涨——按现象查。</p>
+<h2>先做这三步</h2>
+<ol>
+<li>按 <code>O</code> 打开设置，开 <code>enableRenderDiagnostics</code></li>
+<li>复现一次问题</li>
+<li>看 <code>logs/latest.log</code>，搜 <code>[Script]</code> 与
+<code>Error in RTE Resource Pack JavaScript</code></li>
+</ol>
+<div class="note">RTE <strong>没有</strong> <code>/rte debug</code> 命令，
+调试开关都在配置界面里。现存的命令只有 <code>/rte repairrails</code> 与
+<code>/rte fixoneway</code>，都需要 OP 权限。</div>
+
+<h2>脚本完全没反应</h2>
+<div class="tw"><table><tr><th>检查</th><th>做法</th></tr><tr><td>资源包启用了吗</td><td>在资源包界面确认已启用并排在正确位置</td></tr><tr><td>重载了吗</td><td>改完脚本按 <code>F7</code>，不必重启游戏</td></tr><tr><td>车辆 ID 对得上吗</td><td><code>custom_trains</code> 的键必须与实际车型 ID 一致</td></tr><tr><td>声明字段对吗</td><td>3.x 风格用 <code>script_files</code>，4 风格用 <code>vehicleScripts</code> 加 <code>scriptId</code></td></tr><tr><td>被别的包抢了吗</td><td>同一车辆 ID 只绑定一次，先加载的生效</td></tr><tr><td>JCM 装了吗</td><td>JCM 也有 JS 系统，可能接管了。看配置 <code>jcmJsChoice</code></td></tr></table></div>
+<p>日志里搜 <code>[ScriptedCustomTrains]</code> 能看到实际绑定了哪些车辆。</p>
+
+<h2>脚本跑一会儿就停了</h2>
+<p>这是<strong>失败退避</strong>在起作用。同一个函数连续抛异常会被暂停一段时间，
+防止坏脚本每帧每车抛异常拖垮整局。</p>
+<p>搜 <code>Error in RTE Resource Pack JavaScript</code> 看栈，修好后按 <code>F7</code> 恢复。</p>
+
+<h2>报「类不可访问」</h2>
+<p>用了<a href="security.html">白名单</a>外的 Java 类。
+常见的是 <code>java.io</code>、<code>java.net</code>。
+读资源请改用 <code>Resources.readString()</code> 等方法。</p>
+
+<h2>掉帧</h2>
+<div class="tw"><table><tr><th>原因</th><th>症状</th><th>解法</th></tr><tr><td>每帧重建模型</td><td>车一多就卡</td><td>结果缓存进 <code>state</code>，数据变了才重建</td></tr><tr><td>每帧重画贴图</td><td>有 LCD 的车特别卡</td><td>比对内容，没变就直接返回</td></tr><tr><td>没做距离剔除</td><td>远处车也吃性能</td><td>开头判 <code>train.shouldRender()</code></td></tr><tr><td>日志刷屏</td><td>卡顿且日志暴涨</td><td>给 <code>print</code> 加限流</td></tr><tr><td>模型没烘焙</td><td>绘制调用过多</td><td>烘焙成 <code>ModelCluster</code></td></tr></table></div>
+<p>开 <code>enableRenderDiagnostics</code> 后，日志每 10 秒汇总一次各阶段耗时与慢帧，
+能定位是脚本还是渲染的问题。</p>
+
+<h2>内存持续上涨</h2>
+<div class="tw"><table><tr><th>原因</th><th>解法</th></tr><tr><td><code>GraphicsTexture</code> 没关</td><td>在 <code>dispose</code> 里 <code>close()</code>；用 <code>liveCount()</code> 盯数量</td></tr><tr><td><code>state</code> 里无限追加</td><td>数组、Map 要设上限或定期清理</td></tr><tr><td>每帧新建大对象</td><td>复用 <code>BufferedImage</code>，别每帧 new</td></tr><tr><td>贴图过大</td><td>客户端配置 <code>maxTextureSize</code> 可限制上限</td></tr></table></div>
+<div class="warn"><code>state</code> 是每辆车一份的。
+往里塞的东西乘以在线车辆数，才是真实内存占用。</div>
+
+<h2>报站重复播放</h2>
+<p>触发条件写成了 <code>isDoorOpen()</code> —— 它在整个开门期间都为真，所以每帧都播。
+改用 <code>justOpening()</code>，它只在开门那一帧为真。</p>
+
+<h2>速度数值差很多</h2>
+<p>MTR 4 内部用毫秒，3.x 用 tick 或秒，差 50 倍。
+显示速度一律用 <code>train.speedKmh()</code>，不要绕过封装自己算。
+详见 <a href="compat.html">MTR 3.x 兼容与迁移</a>。</p>
+
+<h2>模型转了但角度不对</h2>
+<p><code>RawMesh</code> 的旋转方法接受<strong>角度</strong>不是弧度。
+传 <code>Math.PI</code> 只会转 3.14 度，看起来像「几乎没转但有点歪」。</p>
+
+<h2>还是不行</h2>
+<p>带上这些信息<a href="https://github.com/Rolling-Catawa/rte/issues">开 Issue</a>：</p>
+<ol>
+<li>RTE 版本与加载器（Fabric / Forge）</li>
+<li>MTR 版本</li>
+<li>用的引擎（<code>rhino</code> 还是 <code>graal</code>）</li>
+<li><code>logs/latest.log</code></li>
+<li>能复现的最小脚本</li>
+</ol>
+<div class="pager"><a href="security.html">← 沙箱与可用类</a><span></span></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生命周期与线程 · RTE 脚本手册</title>
+<meta name="description" content="三个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html" class="on">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 生命周期与线程</div>
+<h1>生命周期与线程</h1>
+<p class="lede">三个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。</p>
+<h2>三个入口函数</h2>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">render</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">dispose</span>(ctx, state, train) { }
+</code></pre>
+
+<div class="tw"><table>
+<tr><th>函数</th><th>调用时机</th></tr>
+<tr><td><code>create</code></td><td>该车首次进入渲染范围时调用一次。用来初始化 <code>state</code>。</td></tr>
+<tr><td><code>render</code></td><td><code>create</code> 成功后每帧调用。</td></tr>
+<tr><td><code>dispose</code></td><td>该车不再需要渲染时调用。之后若再次进入范围，会重新走 <code>create</code>。</td></tr>
+</table></div>
+
+<h3>带后缀的变体</h3>
+<p>列车脚本的上下文类型名是 <code>Train</code>，所以下面这组函数名<strong>同样会被调用</strong>：</p>
+<pre><code><span class="k">function</span> <span class="f">createTrain</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">renderTrain</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">disposeTrain</span>(ctx, state, train) { }
+</code></pre>
+<p>两组都定义时<strong>两组都会执行</strong>（先无后缀、后带后缀）。
+多个脚本文件里定义同名函数时，也是全部按加载顺序依次调用 —— 后者不会覆盖前者。</p>
+
+<h2>参数</h2>
+<div class="tw"><table>
+<tr><th>参数</th><th>说明</th></tr>
+<tr><td><code>ctx</code></td><td>脚本上下文。承载绘制调用缓冲区等运行时对象。</td></tr>
+<tr><td><code>state</code></td><td>每辆车独立的空对象，跨帧保留。<strong>放你自己的状态。</strong></td></tr>
+<tr><td><code>train</code></td><td>列车包装对象，见<a href="api-train.html">列车 API</a>。</td></tr>
+</table></div>
+
+<h2>脚本跑在独立线程</h2>
+<div class="warn"><strong>脚本不在渲染主线程执行。</strong>
+它被提交到专用线程池，与渲染并发。这带来两个后果。</div>
+
+<h3>后果一：不能直接碰渲染状态</h3>
+<p>要在主线程做的事，交给 <code>MinecraftClient</code>：</p>
+<pre><code>MinecraftClient.<span class="f">execute</span>(<span class="k">function</span>() {
+  <span class="c">// 这里在主线程</span>
+});
+
+MinecraftClient.<span class="f">recordRenderCall</span>(<span class="k">function</span>() {
+  <span class="c">// 这里在渲染阶段</span>
+});
+</code></pre>
+
+<h3>后果二：一帧可能跳过</h3>
+<p>上一帧的脚本还没跑完时，本帧不会重复提交。所以 <code>render</code> 的实际调用频率
+<strong>不等于</strong>帧率。不要用调用次数当计时器 —— 用 <code>Date.now()</code>。</p>
+
+<h2>失败退避</h2>
+<p>脚本抛异常会被捕获并写日志。<strong>同一函数连续失败会被暂停一段时间</strong>，
+避免坏脚本每帧每车抛异常拖垮整局游戏。</p>
+<p>日志里搜 <code>Error in RTE Resource Pack JavaScript</code> 可看到栈。
+修好后按 <code>F7</code> 重载即可恢复。</p>
+
+<h2>重载</h2>
+<p>按 <code>F7</code> 重载 RTE 客户端资源。脚本会被关闭并重新加载，
+所有 <code>state</code> 清空，下一帧重新走 <code>create</code>。</p>
+<div class="pager"><a href="declare.html">← 在资源包中声明</a><a href="context.html">上下文与状态 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

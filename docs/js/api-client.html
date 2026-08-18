@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>客户端、声音、粒子 · RTE 脚本手册</title>
+<meta name="description" content="与游戏客户端交互：线程调度、相机、天气、声音、粒子。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html" class="on">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 客户端、声音、粒子</div>
+<h1>客户端、声音、粒子</h1>
+<p class="lede">与游戏客户端交互：线程调度、相机、天气、声音、粒子。</p>
+<h2>线程调度</h2>
+<p>脚本跑在独立线程，需要主线程的操作必须转交：</p>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>MinecraftClient.execute(fn)</code></td><td>在主线程执行</td></tr><tr><td><code>MinecraftClient.recordRenderCall(fn)</code></td><td>在渲染阶段执行</td></tr><tr><td><code>MinecraftClient.isOnRenderThreadOrInit()</code></td><td>当前是否已在渲染线程</td></tr></table></div>
+
+<h2>世界与相机</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>getCameraPos()</code></td><td>Vector3f</td><td>相机位置</td></tr><tr><td><code>getCameraDistance(from)</code></td><td>float</td><td>到相机的距离</td></tr><tr><td><code>getCameraEntity()</code></td><td>WrappedEntity</td><td>相机所在实体</td></tr><tr><td><code>getPlayer()</code></td><td>WrappedEntity</td><td>本地玩家</td></tr><tr><td><code>getLevel()</code></td><td>ClientLevel</td><td>客户端世界</td></tr><tr><td><code>worldIsRaining()</code></td><td>boolean</td><td>是否下雨</td></tr><tr><td><code>worldIsRainingAt(pos)</code></td><td>boolean</td><td>指定位置是否下雨</td></tr><tr><td><code>worldDayTime()</code></td><td>long</td><td>世界时间</td></tr><tr><td><code>getStationAt(pos)</code></td><td>Station</td><td>取该位置所属车站</td></tr><tr><td><code>getLightColor(pos)</code></td><td>int</td><td>该位置的光照</td></tr><tr><td><code>packLightTexture(block, sky)</code></td><td>int</td><td>打包光照值</td></tr></table></div>
+<p>用相机距离做分级渲染：</p>
+<pre><code><span class="k">var</span> d = MinecraftClient.<span class="f">getCameraDistance</span>(train.<span class="f">getCarWorldPosition</span>(<span class="n">0</span>));
+<span class="k">if</span> (d &gt; <span class="n">64</span>) <span class="k">return</span>;             <span class="c">// 太远，不画</span>
+<span class="k">var</span> detail = d &lt; <span class="n">16</span>;             <span class="c">// 近了才画细节</span>
+</code></pre>
+
+<h2>提示与界面</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>displayMessage(text, actionBar)</code></td><td>显示消息，<code>actionBar</code> 为 true 时显示在快捷栏上方</td></tr><tr><td><code>narrate(text)</code></td><td>朗读文本，辅助功能</td></tr><tr><td><code>setScreen(screen)</code></td><td>打开界面</td></tr><tr><td><code>getPresentScreen()</code></td><td>取当前界面</td></tr><tr><td><code>reloadResourcePacks()</code></td><td>重载资源包</td></tr><tr><td><code>markRendererAllChanged()</code></td><td>标记渲染器全部需要更新</td></tr></table></div>
+
+<h2>声音</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>SoundHelper.play(sound, pos, source, volume, pitch)</code></td><td>在指定位置播放</td></tr><tr><td><code>SoundHelper.play(sound, pos, volume, pitch)</code></td><td>同上，省略音源分类</td></tr><tr><td><code>SoundHelper.play(soundInstance)</code></td><td>播放已构造的实例</td></tr><tr><td><code>SoundHelper.play(soundInstance, delay)</code></td><td>延迟播放</td></tr><tr><td><code>SoundHelper.stop()</code></td><td>停止全部</td></tr><tr><td><code>SoundHelper.stop(sound)</code></td><td>停止指定</td></tr><tr><td><code>SoundHelper.getSoundSource(name)</code></td><td>按名取音源分类</td></tr></table></div>
+<p>需要循环或跟随的声音用 <code>TickableSound</code> 构造实例后交给 <code>play()</code>。</p>
+<div class="note">报站这类「一次性」声音，触发条件用 <code>train.justOpening()</code>
+而不是 <code>isDoorOpen()</code> —— 后者在整个开门期间都为真，会每帧重播。</div>
+
+<h2>粒子</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>ParticleHelper.addParticle(particle, pos, speed)</code></td><td>发射粒子</td></tr><tr><td><code>ParticleHelper.addParticle(particle, overrideLimiter, pos, speed)</code></td><td>可绕过数量限制</td></tr><tr><td><code>ParticleHelper.getParticleType(name)</code></td><td>按名取粒子类型</td></tr><tr><td><code>Resources.getParticleTypeId(id)</code></td><td>取粒子类型 ID</td></tr></table></div>
+
+<h2>其他全局对象</h2>
+<div class="tw"><table><tr><th>全局名</th><th>说明</th></tr><tr><td><code>ClientConfig</code></td><td>RTE 客户端配置，可读取当前开关状态</td></tr><tr><td><code>ConfigResponder</code></td><td>构造可交互的车辆配置项</td></tr><tr><td><code>MTRClientData</code></td><td>MTR 客户端数据的兼容封装</td></tr><tr><td><code>MTRClientData4</code></td><td>MTR 4 原生客户端数据</td></tr><tr><td><code>IBlock</code></td><td>方块工具</td></tr><tr><td><code>IDrawing</code></td><td>MTR 绘制工具</td></tr><tr><td><code>UtilitiesClient</code></td><td>MTR 客户端辅助工具</td></tr></table></div>
+<div class="pager"><a href="api-resource.html">← 资源与字体</a><a href="compat.html">MTR 3.x 兼容与迁移 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

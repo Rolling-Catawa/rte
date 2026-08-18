@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>列车 API · RTE 脚本手册</title>
+<meta name="description" content="第三个参数 train 上的全部方法。这是脚本能读到的列车状态的完整集合。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html" class="on">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 列车 API</div>
+<h1>列车 API</h1>
+<p class="lede">第三个参数 train 上的全部方法。这是脚本能读到的列车状态的完整集合。</p>
+<h2>速度</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>speedKmh()</code></td><td>float</td><td><strong>km/h</strong>，等同 <code>speedKilometersPerHour()</code></td></tr><tr><td><code>speedKilometersPerHour()</code></td><td>float</td><td>km/h</td></tr><tr><td><code>speed()</code></td><td>float</td><td>米每刻</td></tr><tr><td><code>speedMetersPerMillisecond()</code></td><td>float</td><td>米每毫秒 —— MTR 4 内部单位</td></tr><tr><td><code>pathSpeedLimit()</code></td><td>float</td><td>当前路段限速</td></tr><tr><td><code>getRailSpeed(railIndex)</code></td><td>float</td><td>指定轨道段的限速</td></tr></table></div>
+<div class="warn">MTR 4 内部一律用<strong>毫秒</strong>。3.x 脚本按 tick 或秒写的速度计算，
+直接搬过来量级会差很多。显示用途请一律用 <code>speedKmh()</code>。</div>
+
+<h2>门</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>doorValue()</code></td><td>float</td><td>门开度，0 为全关，1 为全开</td></tr><tr><td><code>isDoorOpen()</code></td><td>boolean</td><td>门是否开着</td></tr><tr><td><code>isDoorFullyOpen()</code></td><td>boolean</td><td>是否完全打开</td></tr><tr><td><code>isDoorClosed()</code></td><td>boolean</td><td>是否完全关闭</td></tr><tr><td><code>isDoorOpening()</code></td><td>boolean</td><td>是否正在开门</td></tr><tr><td><code>justOpening()</code></td><td>boolean</td><td>是否刚开始开门</td></tr><tr><td><code>justClosing(doorCloseTime)</code></td><td>boolean</td><td>是否刚开始关门</td></tr><tr><td><code>doorTarget()</code></td><td>boolean</td><td>门的目标状态</td></tr><tr><td><code>doorSide()</code></td><td>String</td><td>取值 left、right、both、none</td></tr></table></div>
+<pre><code><span class="c">// 到站开门时播一次报站</span>
+<span class="k">if</span> (train.<span class="f">justOpening</span>()) {
+  playAnnouncement(train.<span class="f">currentStationName</span>(), train.<span class="f">doorSide</span>());
+}
+</code></pre>
+
+<h2>线路与车站</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>routeName()</code></td><td>String</td><td>线路名</td></tr><tr><td><code>routeNumber()</code></td><td>String</td><td>线路编号</td></tr><tr><td><code>routeColor()</code></td><td>int</td><td>线路颜色，RGB 整数</td></tr><tr><td><code>currentRoute()</code></td><td>RouteCompat</td><td>线路对象</td></tr><tr><td><code>nextStationName()</code></td><td>String</td><td>下一站站名</td></tr><tr><td><code>currentStationName()</code></td><td>String</td><td>当前站站名</td></tr><tr><td><code>destinationName()</code></td><td>String</td><td>终点站名</td></tr><tr><td><code>nextStation()</code></td><td>StationCompat</td><td>下一站对象</td></tr><tr><td><code>currentStation()</code></td><td>StationCompat</td><td>当前站对象</td></tr><tr><td><code>nextPlatform()</code></td><td>PlatformInfo</td><td>下一站台</td></tr><tr><td><code>currentPlatform()</code></td><td>PlatformInfo</td><td>当前站台</td></tr><tr><td><code>thisRouteStationCount()</code></td><td>int</td><td>本线路站数</td></tr><tr><td><code>thisRouteCurrentIndex()</code></td><td>int</td><td>当前是第几站，0 起</td></tr><tr><td><code>isAtTerminus()</code></td><td>boolean</td><td>是否在终点站</td></tr><tr><td><code>isAtFirstStation()</code></td><td>boolean</td><td>是否在首站</td></tr></table></div>
+<div class="note">站名可能是「中文竖线English」的双语格式，按竖线切分即可。
+取不到时会回落到常量 <code>UNKNOWN_STATION</code>、<code>UNKNOWN_ROUTE</code>、
+<code>UNKNOWN_DEPOT</code>，这三个常量脚本里可直接引用。</div>
+
+<h2>距离与进度</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>distanceToNextPlatform()</code></td><td>double</td><td>到下一站台距离，取不到返回 <code>-1</code></td></tr><tr><td><code>distanceToPrevPlatform()</code></td><td>double</td><td>距上一站台距离</td></tr><tr><td><code>routeProgress()</code></td><td>double</td><td>全程进度，范围 <strong>0 到 1</strong></td></tr><tr><td><code>totalRouteDistance()</code></td><td>double</td><td>全程总距离</td></tr><tr><td><code>railProgress()</code></td><td>double</td><td>沿轨道的累计进度</td></tr><tr><td><code>getRailProgress(car)</code></td><td>double</td><td>指定车厢的进度</td></tr><tr><td><code>getRailIndex(railProgress, roundDown)</code></td><td>int</td><td>进度对应的轨道段下标</td></tr></table></div>
+<pre><code><span class="c">// 进站进度条</span>
+<span class="k">var</span> d = train.<span class="f">distanceToNextPlatform</span>();
+<span class="k">if</span> (d &gt;= <span class="n">0</span> &amp;&amp; d &lt; <span class="n">200</span>) {
+  drawProgressBar(<span class="n">1</span> - d / <span class="n">200</span>);
+}
+</code></pre>
+
+<h2>站台列表</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>getAllPlatforms()</code></td><td>List</td><td>全部站台，含跨线路</td></tr><tr><td><code>getThisRoutePlatforms()</code></td><td>List</td><td>本线路站台</td></tr><tr><td><code>getNextRoutePlatforms()</code></td><td>List</td><td>下一条线路的站台</td></tr><tr><td><code>getAllPlatformsNextIndex()</code></td><td>int</td><td>下一站在全部站台里的下标</td></tr><tr><td><code>getThisRoutePlatformsNextIndex()</code></td><td>int</td><td>下一站在本线路列表里的下标</td></tr><tr><td><code>getPlatformRelative(offset, allowDifferentRoute)</code></td><td>PlatformInfo</td><td>相对当前的第 N 站</td></tr><tr><td><code>size()</code></td><td>int</td><td>站台总数</td></tr><tr><td><code>get(index)</code></td><td>PlatformInfo</td><td>按下标取</td></tr></table></div>
+<h3>PlatformInfo 的成员</h3>
+<div class="tw"><table><tr><th>成员</th><th>类型</th><th>说明</th></tr><tr><td><code>stationName()</code></td><td>String</td><td>站名</td></tr><tr><td><code>platformName()</code></td><td>String</td><td>站台名</td></tr><tr><td><code>routeName()</code></td><td>String</td><td>线路名</td></tr><tr><td><code>routeColor()</code></td><td>int</td><td>线路颜色</td></tr><tr><td><code>destinationStationName()</code></td><td>String</td><td>该站台方向的终点站</td></tr><tr><td><code>distance</code></td><td>double</td><td>沿线距离</td></tr><tr><td><code>reverseAtPlatform</code></td><td>boolean</td><td>是否在此站折返</td></tr><tr><td><code>station</code></td><td>StationCompat</td><td>车站对象</td></tr><tr><td><code>platform</code></td><td>PlatformCompat</td><td>站台对象</td></tr><tr><td><code>route</code></td><td>RouteCompat</td><td>线路对象</td></tr><tr><td><code>destinationStation</code></td><td>StationCompat</td><td>终点站对象</td></tr></table></div>
+<pre><code><span class="c">// 画后续三站</span>
+<span class="k">var</span> list = train.<span class="f">getThisRoutePlatforms</span>();
+<span class="k">var</span> i = train.<span class="f">getThisRoutePlatformsNextIndex</span>();
+<span class="k">for</span> (<span class="k">var</span> k = <span class="n">0</span>; k &lt; <span class="n">3</span> &amp;&amp; i + k &lt; list.<span class="f">size</span>(); k++) {
+  <span class="k">var</span> p = list.<span class="f">get</span>(i + k);
+  draw(p.<span class="f">stationName</span>(), p.<span class="f">routeColor</span>());
+}
+</code></pre>
+
+<h2>车辆本身</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>id()</code></td><td>long</td><td>车辆实例 ID</td></tr><tr><td><code>trainTypeId()</code></td><td>String</td><td>车型 ID</td></tr><tr><td><code>baseTrainType()</code></td><td>String</td><td>基础车型</td></tr><tr><td><code>trainCars()</code></td><td>int</td><td>编组数</td></tr><tr><td><code>spacing()</code></td><td>double</td><td>车厢间距，受配置 <code>closeCouplingGap</code> 影响</td></tr><tr><td><code>width()</code></td><td>double</td><td>车宽</td></tr><tr><td><code>getCarLength(car)</code></td><td>double</td><td>指定车厢长度</td></tr><tr><td><code>getCarBogieLength(car)</code></td><td>double</td><td>转向架间距</td></tr><tr><td><code>getCarWorldPosition(car)</code></td><td>Vector3f</td><td>车厢世界坐标</td></tr><tr><td><code>getCarWorldRotation(car)</code></td><td>Vector3f</td><td>车厢世界旋转</td></tr><tr><td><code>transportMode()</code></td><td>TransportMode</td><td>运输模式</td></tr><tr><td><code>siding()</code></td><td>SidingCompat</td><td>所属车厂线</td></tr><tr><td><code>mtrTrain()</code></td><td>Vehicle</td><td>底层 MTR 对象</td></tr></table></div>
+<h2>运行状态</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>isOnRoute()</code></td><td>boolean</td><td>是否在营运线路上</td></tr><tr><td><code>isReversed()</code></td><td>boolean</td><td>是否反向运行</td></tr><tr><td><code>isCurrentlyManual()</code></td><td>boolean</td><td>是否处于手动驾驶</td></tr><tr><td><code>manualAllowed()</code></td><td>boolean</td><td>是否允许手动</td></tr><tr><td><code>maxManualSpeed()</code></td><td>int</td><td>手动最高速</td></tr><tr><td><code>manualToAutomaticTime()</code></td><td>int</td><td>手动转自动的时间</td></tr><tr><td><code>accelerationConstant()</code></td><td>float</td><td>加速度常数</td></tr><tr><td><code>isClientPlayerRiding()</code></td><td>boolean</td><td>本地玩家是否在车上</td></tr><tr><td><code>shouldRender()</code></td><td>boolean</td><td>是否在渲染范围</td></tr><tr><td><code>shouldRenderDetail()</code></td><td>boolean</td><td>是否在细节渲染距离</td></tr><tr><td><code>headYaw()</code></td><td>float</td><td>车头偏航角</td></tr><tr><td><code>headPitch()</code></td><td>float</td><td>车头俯仰角</td></tr></table></div>
+<div class="note"><code>shouldRender</code>、<code>isInDetailDistance</code>、
+<code>previousDoorValue</code>、<code>currentDoorValue</code> 同时存在<strong>同名的公开字段</strong>。
+写成属性或方法都能取到值，但同一份脚本里不要混用两种写法。</div>
+<div class="pager"><a href="context.html">← 上下文与状态</a><a href="api-draw.html">绘制 API →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

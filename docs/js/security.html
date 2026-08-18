@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>沙箱与可用类 · RTE 脚本手册</title>
+<meta name="description" content="脚本能碰哪些 Java 类，以及为什么要有这条线。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html" class="on">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 沙箱与可用类</div>
+<h1>沙箱与可用类</h1>
+<p class="lede">脚本能碰哪些 Java 类，以及为什么要有这条线。</p>
+<h2>为什么有白名单</h2>
+<p>资源包是从网上下载的，脚本会在玩家机器上执行。
+不加限制的话，一个资源包就能读写任意文件、发起网络请求。
+所以 RTE 只放行绘图、文本、数学、时间这些必要的包。</p>
+
+<h2>允许的包</h2>
+<p>以下前缀开头的类可直接使用：</p>
+<div class="tw"><table><tr><th>包</th><th>典型用途</th></tr><tr><td><code>java.awt</code></td><td><code>BufferedImage</code>、<code>Graphics2D</code>、<code>Color</code>、<code>Font</code> —— 画 LCD 的主力</td></tr><tr><td><code>java.util</code></td><td><code>ArrayList</code>、<code>HashMap</code>、<code>Arrays</code> 等集合</td></tr><tr><td><code>java.text</code></td><td>数字与日期格式化</td></tr><tr><td><code>java.time</code></td><td>时间日期计算</td></tr><tr><td><code>java.math</code></td><td><code>BigInteger</code>、<code>BigDecimal</code>、<code>RoundingMode</code></td></tr><tr><td><code>mtr</code></td><td>MTR 自身的类</td></tr><tr><td><code>cn.jstxjf_.rte.scripting.compat</code></td><td>RTE 的<a href="compat.html">兼容对象</a></td></tr></table></div>
+
+<h2>允许的单个类</h2>
+<p>除上述包外，这些 <code>java.lang</code> 下的类被单独放行：</p>
+<div class="tw"><table><tr><th>分类</th><th>类</th></tr><tr><td>基本类型包装</td><td><code>Boolean</code>、<code>Byte</code>、<code>Short</code>、<code>Integer</code>、<code>Long</code>、<code>Float</code>、<code>Double</code>、<code>Character</code></td></tr><tr><td>文本</td><td><code>String</code>、<code>CharSequence</code>、<code>StringBuilder</code></td></tr><tr><td>数学</td><td><code>Math</code>、<code>StrictMath</code>、<code>Number</code></td></tr><tr><td>基础</td><td><code>Object</code>、<code>Iterable</code>、<code>Comparable</code>、<code>Enum</code></td></tr><tr><td>异常</td><td><code>Exception</code>、<code>RuntimeException</code>、<code>IllegalArgumentException</code>、<code>IllegalStateException</code></td></tr></table></div>
+
+<div class="note"><code>java.math</code> 在白名单里，是因为有资源包的报站脚本用
+<code>BigInteger</code> 做编号运算。如果你的脚本报「类不可访问」，
+先确认用的类在上面两张表里。</div>
+
+<h2>不在白名单里的</h2>
+<p>典型的被挡下的：</p>
+<ul>
+<li><code>java.io</code> / <code>java.nio</code> —— 任意文件读写。读资源请用 <code>Resources</code></li>
+<li><code>java.net</code> —— 网络请求</li>
+<li><code>java.lang.System</code> —— 环境变量、退出进程</li>
+<li><code>java.lang.Runtime</code> / <code>ProcessBuilder</code> —— 执行外部命令</li>
+<li>反射相关 —— 绕过限制的常见路径</li>
+</ul>
+
+<h2>加载期与运行期</h2>
+<p>脚本<strong>加载阶段</strong>（顶层代码执行时）不做限制，
+<strong>运行期</strong>（<code>create</code> / <code>render</code> / <code>dispose</code> 内）才启用白名单。
+这是为了让脚本能在加载时完成必要的初始化。</p>
+<div class="warn">不要利用这个差异在加载期缓存受限类的引用 ——
+这属于绕过限制，将来可能被收紧。</div>
+
+<h2>动态加载额外类</h2>
+<p>RTE 支持资源包声明要额外注入的类，注入后以简单类名作为全局名。
+这条路径同样受白名单约束。</p>
+<div class="pager"><a href="compat.html">← MTR 3.x 兼容与迁移</a><a href="troubleshoot.html">排错与性能 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

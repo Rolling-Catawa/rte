@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在资源包中声明 · RTE 脚本手册</title>
+<meta name="description" content="RTE 支持两种声明格式：MTR 3.x 的 custom_trains 与 MTR 4 的 vehicleScripts。两者都从同一个文件读取。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html" class="on">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 在资源包中声明</div>
+<h1>在资源包中声明</h1>
+<p class="lede">RTE 支持两种声明格式：MTR 3.x 的 custom_trains 与 MTR 4 的 vehicleScripts。两者都从同一个文件读取。</p>
+<h2>扫描的文件</h2>
+<p>RTE 遍历所有已启用资源包，收集这两个文件名：</p>
+<div class="tw"><table>
+<tr><th>文件</th><th>说明</th></tr>
+<tr><td><code>mtr_custom_resources.json</code></td><td>主文件</td></tr>
+<tr><td><code>mtr_custom_resources_pending_migration.json</code></td><td>待迁移文件，格式相同</td></tr>
+</table></div>
+<p>放在 <code>assets/&lt;任意命名空间&gt;/</code> 下即可，命名空间不限。</p>
+
+<h2>格式一 · MTR 3.x 风格</h2>
+<p>脚本直接挂在 <code>custom_trains</code> 的车辆条目上。</p>
+<pre><code>{
+  <span class="s">"custom_trains"</span>: {
+    <span class="s">"my_train"</span>: {
+      <span class="s">"name"</span>: <span class="s">"我的列车"</span>,
+      <span class="s">"base_train_type"</span>: <span class="s">"train_20_2"</span>,
+      <span class="s">"engine"</span>: <span class="s">"rhino"</span>,
+      <span class="s">"script_files"</span>: [
+        <span class="s">"mypack:scripts/lib.js"</span>,
+        <span class="s">"mypack:scripts/main.js"</span>
+      ]
+    }
+  }
+}
+</code></pre>
+
+<div class="tw"><table>
+<tr><th>字段</th><th>类型</th><th>说明</th></tr>
+<tr><td><code>script_files</code></td><td>字符串数组</td><td>脚本资源路径，<strong>按数组顺序依次执行</strong></td></tr>
+<tr><td><code>script_texts</code></td><td>字符串数组</td><td>直接内嵌脚本源码，与 <code>script_files</code> 可共存</td></tr>
+<tr><td><code>engine</code></td><td>字符串</td><td><code>rhino</code> / <code>graal</code> / <code>auto</code>，缺省为 <code>auto</code></td></tr>
+</table></div>
+
+<div class="note"><strong>执行顺序：</strong><code>script_texts</code> 先于 <code>script_files</code>。
+两者都按数组下标顺序执行，所以工具库放前面、主逻辑放后面。</div>
+
+<h2>格式二 · MTR 4 风格</h2>
+<p>脚本单独注册，车辆用 <code>scriptId</code> 引用。多辆车可共用同一份脚本。</p>
+<pre><code>{
+  <span class="s">"vehicleScripts"</span>: [
+    {
+      <span class="s">"id"</span>: <span class="s">"pis_common"</span>,
+      <span class="s">"scriptLocations"</span>: [
+        <span class="s">"mypack:scripts/pis.js"</span>
+      ]
+    }
+  ],
+  <span class="s">"vehicles"</span>: [
+    { <span class="s">"id"</span>: <span class="s">"train_a"</span>, <span class="s">"scriptId"</span>: <span class="s">"pis_common"</span> },
+    { <span class="s">"id"</span>: <span class="s">"train_b"</span>, <span class="s">"scriptId"</span>: <span class="s">"pis_common"</span> }
+  ]
+}
+</code></pre>
+<p>此格式<strong>没有 <code>engine</code> 字段</strong>，引擎完全由客户端配置 <code>scriptEngine</code> 决定。</p>
+
+<h2>引擎优先级</h2>
+<div class="tw"><table>
+<tr><th>客户端 <code>scriptEngine</code></th><th>资源包 <code>engine</code></th><th>实际使用</th></tr>
+<tr><td><code>auto</code></td><td>已指定</td><td>资源包指定的</td></tr>
+<tr><td><code>auto</code></td><td>未指定</td><td>自动判定</td></tr>
+<tr><td><code>rhino</code> / <code>graal</code></td><td>任意</td><td><strong>客户端配置</strong>，资源包被忽略</td></tr>
+</table></div>
+<p>换言之：客户端把 <code>scriptEngine</code> 设成具体引擎，就是全局强制。保持 <code>auto</code> 才会尊重资源包。</p>
+
+<h2>去重</h2>
+<p>同一个车辆 ID 只会被绑定一次。多个资源包声明同一 ID 时，<strong>先加载的生效</strong>，后来的跳过。</p>
+
+<h2>路径写法</h2>
+<p><code>script_files</code> 与 <code>scriptLocations</code> 都接受 <code>命名空间:路径</code> 形式。
+省略命名空间时按 MTR 旧格式解析。</p>
+<div class="pager"><a href="quickstart.html">← 第一个脚本</a><a href="lifecycle.html">生命周期与线程 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

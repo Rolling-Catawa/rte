@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第一个脚本 · RTE 脚本手册</title>
+<meta name="description" content="从零写一个显示车速的脚本，跑通完整链路。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html" class="on">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 第一个脚本</div>
+<h1>第一个脚本</h1>
+<p class="lede">从零写一个显示车速的脚本，跑通完整链路。</p>
+<h2>目录结构</h2>
+<p>脚本放在资源包的 <code>assets/&lt;命名空间&gt;/</code> 下，路径可自定：</p>
+<pre><code>你的资源包.zip
+└─ assets/
+   └─ mypack/
+      ├─ mtr_custom_resources.json
+      └─ scripts/
+         └─ speed.js
+</code></pre>
+
+<h2>写脚本</h2>
+<p><code>scripts/speed.js</code>：</p>
+<pre><code><span class="c">// 每辆车创建时调用一次</span>
+<span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
+  state.lastLog = <span class="n">0</span>;
+}
+
+<span class="c">// 每帧调用</span>
+<span class="k">function</span> <span class="f">render</span>(ctx, state, train) {
+  <span class="k">if</span> (!train.<span class="f">shouldRender</span>()) <span class="k">return</span>;
+
+  <span class="k">var</span> now = Date.<span class="f">now</span>();
+  <span class="k">if</span> (now - state.lastLog &lt; <span class="n">1000</span>) <span class="k">return</span>;
+  state.lastLog = now;
+
+  Resources.<span class="f">print</span>(
+    train.<span class="f">routeName</span>() + <span class="s">" 开往 "</span> + train.<span class="f">destinationName</span>() +
+    <span class="s">" | "</span> + train.<span class="f">speedKmh</span>().<span class="f">toFixed</span>(<span class="n">1</span>) + <span class="s">" km/h"</span> +
+    <span class="s">" | 下一站 "</span> + train.<span class="f">nextStationName</span>()
+  );
+}
+</code></pre>
+
+<div class="warn"><strong><code>render</code> 每帧每车都会跑。</strong>
+不要在里面做重活，也不要无节流地打日志 —— 一辆 8 编组的车一秒就是几百次调用。
+上面用 <code>state.lastLog</code> 限流到每秒一次。</div>
+
+<h2>挂到车辆上</h2>
+<p><code>mtr_custom_resources.json</code>：</p>
+<pre><code>{
+  <span class="s">"custom_trains"</span>: {
+    <span class="s">"my_train"</span>: {
+      <span class="s">"name"</span>: <span class="s">"我的列车"</span>,
+      <span class="s">"base_train_type"</span>: <span class="s">"train_20_2"</span>,
+      <span class="s">"script_files"</span>: [<span class="s">"mypack:scripts/speed.js"</span>],
+      <span class="s">"engine"</span>: <span class="s">"rhino"</span>
+    }
+  }
+}
+</code></pre>
+<p>两种声明方式的完整说明见<a href="declare.html">在资源包中声明</a>。</p>
+
+<h2>看到输出</h2>
+<ol>
+<li>把资源包放进 <code>resourcepacks/</code> 并启用</li>
+<li>按 <code>F7</code> 重载 RTE 客户端资源（不必退出游戏）</li>
+<li>生成一辆该型号的车，看 <code>logs/latest.log</code></li>
+</ol>
+<p><code>Resources.print()</code> 的输出带 <code>[Script]</code> 前缀。</p>
+
+<h2>改完立即生效</h2>
+<p>改了 <code>.js</code> 后按 <code>F7</code> 即可重载，无需重启游戏。
+脚本报错也在日志里，搜 <code>Error in RTE Resource Pack JavaScript</code>。</p>
+<div class="pager"><a href="index.html">← 总览</a><a href="declare.html">在资源包中声明 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

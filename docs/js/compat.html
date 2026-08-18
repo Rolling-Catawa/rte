@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MTR 3.x 兼容与迁移 · RTE 脚本手册</title>
+<meta name="description" content="RTE 提供一层兼容对象，让 3.x 时代的脚本尽量原样运行。这页讲它覆盖了什么、以及必须手动改的地方。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html" class="on">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / MTR 3.x 兼容与迁移</div>
+<h1>MTR 3.x 兼容与迁移</h1>
+<p class="lede">RTE 提供一层兼容对象，让 3.x 时代的脚本尽量原样运行。这页讲它覆盖了什么、以及必须手动改的地方。</p>
+<h2>兼容对象</h2>
+<p>MTR 4 重构了数据结构，3.x 脚本用的类大多已不存在。
+RTE 在 <code>cn.jstxjf_.rte.scripting.compat</code> 下提供了替代实现，
+它们在<a href="security.html">白名单</a>内可直接使用。</p>
+<div class="tw"><table><tr><th>兼容类</th><th>对应 3.x 概念</th></tr><tr><td><code>StationCompat</code></td><td>车站</td></tr><tr><td><code>RouteCompat</code></td><td>线路</td></tr><tr><td><code>PlatformCompat</code></td><td>站台</td></tr><tr><td><code>RoutePlatformCompat</code></td><td>线路站台关联</td></tr><tr><td><code>DepotCompat</code></td><td>车厂</td></tr><tr><td><code>SidingCompat</code></td><td>车厂线</td></tr><tr><td><code>RailCompat</code></td><td>轨道</td></tr><tr><td><code>PathDataCompat</code></td><td>路径数据</td></tr><tr><td><code>DataCacheCompat</code></td><td>数据缓存</td></tr><tr><td><code>ClientDataCompat</code></td><td>客户端数据</td></tr><tr><td><code>ColorNameCompat</code></td><td>颜色名</td></tr><tr><td><code>ScriptLongMap</code></td><td>长整型键映射</td></tr><tr><td><code>ScriptVector</code></td><td>向量</td></tr></table></div>
+<p>脚本里通过全局 <code>MTRClientData</code> 访问客户端数据，
+它是 <code>ClientDataCompat</code> 的别名。要用 MTR 4 原生结构则用 <code>MTRClientData4</code>。</p>
+
+<h2>必须手改的：时间基准</h2>
+<div class="warn">MTR 3.x 按 <strong>tick 或秒</strong>计算，MTR 4 内部一律用<strong>毫秒</strong>。
+1 tick = 50 毫秒。速度、加速度、停站时间三处都受影响。</div>
+<p>RTE 已经在 <code>TrainWrapper</code> 层面做了换算 ——
+<code>speed()</code> 返回米每刻、<code>speedKmh()</code> 返回 km/h，都是 3.x 脚本期望的量级。
+但如果你的脚本<strong>绕过封装直接读底层对象</strong>，就得自己乘 50。</p>
+<p>最稳妥的做法：显示速度一律用 <code>train.speedKmh()</code>，不要自己算。</p>
+
+<h2>必须手改的：贴图路径</h2>
+<p>MTR 4 判定基础贴图时要求路径<strong>严格等于</strong> <code>default.png</code>，
+而老包常写成 <code>xxx/default.png</code>。
+RTE 的 <code>legacyDefaultTextureFallback</code> 开关把它放宽为按文件名匹配，默认开启。</p>
+
+<h2>引擎差异</h2>
+<p>3.x 脚本基本都是为 <strong>Rhino</strong> 写的。迁移时先用 <code>rhino</code>，
+跑通了再考虑换 GraalJS。</p>
+<div class="tw"><table><tr><th>差异点</th><th>说明</th></tr><tr><td>Java 互操作</td><td>两个引擎包装 Java 对象的方式不同，遍历、类型转换的写法可能要调整</td></tr><tr><td>语法级别</td><td>Rhino 对 ES6+ 支持有限，GraalJS 支持完整。反过来，为 Rhino 写的老写法在 GraalJS 下通常仍可用</td></tr><tr><td>数字类型</td><td>Java 的 int 与 double 在两个引擎里转成 JS number 的行为略有出入</td></tr></table></div>
+<p>在资源包里用 <code>engine</code> 字段指定，或让用户在客户端配置 <code>scriptEngine</code> 里选。
+注意：客户端设成具体引擎时会<strong>覆盖</strong>资源包的声明。</p>
+
+<h2>与 JCM 共存</h2>
+<p>Joban Client Mod 也带 JS 脚本系统，在「跑 3.x 包脚本」这件事上与 RTE 重叠。
+RTE 检测到 JCM 时会提示，让用户选择由谁接管，避免双重渲染。
+对应配置项是 <code>jcmJsChoice</code>。</p>
+
+<h2>已知不兼容</h2>
+<p>并非所有 3.x 脚本都能原样跑。常见卡点：</p>
+<ul>
+<li>直接引用 MTR 3.x 内部类 —— 那些类在 4.0 里不存在，需改用兼容对象</li>
+<li>依赖 3.x 的渲染时序 —— MTR 4 的渲染流程不同</li>
+<li>使用白名单外的 Java 类 —— 见<a href="security.html">沙箱与可用类</a></li>
+</ul>
+<div class="pager"><a href="api-client.html">← 客户端、声音、粒子</a><a href="security.html">沙箱与可用类 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

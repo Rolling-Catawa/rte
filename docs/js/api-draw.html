@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>绘制 API · RTE 脚本手册</title>
+<meta name="description" content="把自绘模型交给渲染管线。两种坐标系、两个绘制目标，先分清再动手。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html" class="on">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 绘制 API</div>
+<h1>绘制 API</h1>
+<p class="lede">把自绘模型交给渲染管线。两种坐标系、两个绘制目标，先分清再动手。</p>
+<h2>两种绘制调用</h2>
+<div class="tw"><table><tr><th>类型</th><th>坐标系</th><th>用途</th></tr><tr><td><code>ClusterDrawCall</code></td><td>车厢本地</td><td>跟着车厢走的东西 —— 车内设备、外部标识</td></tr><tr><td><code>WorldDrawCall</code></td><td>世界绝对</td><td>不跟车走的东西</td></tr></table></div>
+<p>两者都通过全局同名类构造：</p>
+<pre><code><span class="k">var</span> call = <span class="k">new</span> <span class="f">ClusterDrawCall</span>(model, pose);
+</code></pre>
+<p><code>model</code> 是 <code>ModelCluster</code> 或 <code>DynamicModelHolder</code>，
+<code>pose</code> 是 <code>Matrix4f</code> 变换矩阵。</p>
+
+<h2>提交到车厢</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>addCarModel(car, model, pose)</code></td><td>把模型挂到第 <code>car</code> 节车厢</td></tr><tr><td><code>addCarSound(car, sound, position, volume, pitch)</code></td><td>在指定车厢位置播声音</td></tr><tr><td><code>addConnModel(car, model, pose)</code></td><td>挂到车厢连接处</td></tr><tr><td><code>drawConnStretchTexture(car, texture)</code></td><td>在连接处拉伸贴一张图</td></tr></table></div>
+<div class="note"><code>car</code> 从 <strong>0</strong> 开始。
+编组数用 <code>train.trainCars()</code> 取，越界会被忽略。</div>
+
+<h2>绘制调用表</h2>
+<p><code>ctx</code> 上按车厢维护了一组 <code>DrawCallMap</code>，行为与 Map 一致：</p>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>put(key, drawCall)</code></td><td>登记一个绘制调用，<code>key</code> 任意</td></tr><tr><td><code>get(key)</code></td><td>取回</td></tr><tr><td><code>remove(key)</code></td><td>移除</td></tr><tr><td><code>containsKey(key)</code></td><td>是否存在</td></tr><tr><td><code>clear()</code></td><td>清空</td></tr><tr><td><code>size()</code></td><td>数量</td></tr><tr><td><code>keySet()</code></td><td>全部 key</td></tr><tr><td><code>values()</code></td><td>全部绘制调用</td></tr></table></div>
+<p>用 key 复用比每帧重建划算得多：</p>
+<pre><code><span class="k">function</span> <span class="f">render</span>(ctx, state, train) {
+  <span class="k">if</span> (!train.<span class="f">shouldRender</span>()) <span class="k">return</span>;
+
+  <span class="c">// 站名没变就不重建模型</span>
+  <span class="k">var</span> name = train.<span class="f">nextStationName</span>();
+  <span class="k">if</span> (state.builtFor !== name) {
+    state.builtFor = name;
+    state.model = buildSignModel(name);
+  }
+}
+</code></pre>
+
+<h2>模型类</h2>
+<div class="tw"><table><tr><th>全局名</th><th>说明</th></tr><tr><td><code>RawMesh</code></td><td>可编辑网格。支持平移、旋转、缩放等变换</td></tr><tr><td><code>RawMeshBuilder</code></td><td>逐面构建网格</td></tr><tr><td><code>RawModel</code></td><td>由多个 <code>RawMesh</code> 组成的模型</td></tr><tr><td><code>ModelCluster</code></td><td>烘焙后的模型，上传到 GPU，绘制开销最低</td></tr><tr><td><code>DynamicModelHolder</code></td><td>可替换内容的模型容器</td></tr></table></div>
+<div class="warn"><code>RawMesh</code> 的旋转方法接受的是<strong>角度</strong>，不是弧度。
+传 <code>Math.PI</code> 只会转 3.14 度。</div>
+
+<h2>性能</h2>
+<ul>
+<li><strong>不要每帧构建模型。</strong> 把结果缓存进 <code>state</code>，只在数据变化时重建。</li>
+<li><strong>能烘焙成 <code>ModelCluster</code> 就烘焙。</strong> 它上传 GPU 一次，之后每帧近乎免费。</li>
+<li><strong>先判 <code>shouldRender()</code>。</strong> 车不在视野内直接返回。</li>
+<li><strong>远景降级。</strong> 用 <code>shouldRenderDetail()</code> 决定要不要画细节。</li>
+</ul>
+<p>开客户端配置 <code>enableRenderDiagnostics</code> 可在日志看到各阶段耗时与模型去重统计。</p>
+<div class="pager"><a href="api-train.html">← 列车 API</a><a href="api-graphics.html">动态贴图与 LCD →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

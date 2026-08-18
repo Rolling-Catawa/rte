@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>总览 · RTE 脚本手册</title>
+<meta name="description" content="RTE 内置两套 JavaScript 运行时，让资源包里的脚本驱动列车显示、动态贴图、声音与粒子。本手册按代码实况编写。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html" class="on">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 总览</div>
+<h1>总览</h1>
+<p class="lede">RTE 内置两套 JavaScript 运行时，让资源包里的脚本驱动列车显示、动态贴图、声音与粒子。本手册按代码实况编写。</p>
+<h2>这套脚本能做什么</h2>
+<p>资源包可以为车辆挂载 JS 脚本，在客户端每帧运行，用来：</p>
+<ul>
+<li>读取列车状态 —— 速度、门、线路、下一站、到站距离</li>
+<li>把内容画到动态贴图上 —— 车内 LCD、线路图、到站显示</li>
+<li>提交自绘模型的绘制调用</li>
+<li>播放声音、发射粒子</li>
+</ul>
+
+<h2>两套引擎</h2>
+<div class="tw"><table>
+<tr><th>引擎</th><th>说明</th></tr>
+<tr><td><code>rhino</code></td><td>Mozilla Rhino，MTR 3.x 时代资源包使用的引擎。兼容性最好。</td></tr>
+<tr><td><code>graal</code></td><td>GraalVM JavaScript，语法更新（支持 ES6+），性能通常更好。</td></tr>
+<tr><td><code>auto</code></td><td>由 RTE 决定。</td></tr>
+</table></div>
+<p>客户端配置项 <code>scriptEngine</code> 设默认引擎；资源包可用 <code>engine</code> 字段单独指定，
+资源包的声明优先。</p>
+
+<div class="note">Rhino 与 GraalJS 的 Java 互操作语义<strong>不完全一致</strong>。
+为 Rhino 写的脚本在 GraalJS 下可能需要调整，反之亦然。
+若脚本原本面向 MTR 3.x，先用 <code>rhino</code>。</div>
+
+<h2>一个最小例子</h2>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
+  state.tick = <span class="n">0</span>;
+}
+
+<span class="k">function</span> <span class="f">render</span>(ctx, state, train) {
+  state.tick++;
+  <span class="k">if</span> (state.tick % <span class="n">60</span> === <span class="n">0</span>) {
+    Resources.<span class="f">print</span>(<span class="s">"速度 "</span> + train.<span class="f">speedKmh</span>() + <span class="s">" km/h"</span>);
+  }
+}
+</code></pre>
+<p>三个入口函数 <code>create</code> / <code>render</code> / <code>dispose</code>，签名一致。
+详见<a href="lifecycle.html">生命周期与线程</a>。</p>
+
+<h2>本手册的编写方式</h2>
+<p>所有 API 签名、函数名、配置项名均<strong>直接取自源码</strong>，
+不是从旧版文档抄的。若你发现与实际不符，请<a href="https://github.com/Rolling-Catawa/rte/issues">开 Issue</a> —— 那是文档的 bug。</p>
+<p>本手册对应 RTE <code>1.0.0-beta.1</code>。</p>
+<div class="pager"><span></span><a href="quickstart.html">第一个脚本 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

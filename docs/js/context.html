@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>上下文与状态 · RTE 脚本手册</title>
+<meta name="description" content="state 是你的，ctx 是运行时的。搞清楚哪个存什么，能省掉一半的坑。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html" class="on">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 上下文与状态</div>
+<h1>上下文与状态</h1>
+<p class="lede">state 是你的，ctx 是运行时的。搞清楚哪个存什么，能省掉一半的坑。</p>
+<h2><code>state</code> —— 你的存储</h2>
+<p>每辆车一个独立对象，跨帧保留，<code>create</code> 时为空。放任何你需要跨帧记住的东西：</p>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
+  state.scrollX     = <span class="n">0</span>;
+  state.lastStation = <span class="k">null</span>;
+  state.texture     = <span class="k">null</span>;
+}
+
+<span class="k">function</span> <span class="f">render</span>(ctx, state, train) {
+  <span class="k">var</span> now = train.<span class="f">nextStationName</span>();
+  <span class="k">if</span> (now !== state.lastStation) {
+    state.lastStation = now;
+    state.scrollX = <span class="n">0</span>;      <span class="c">// 换站了，重置滚动</span>
+  }
+}
+</code></pre>
+
+<div class="note"><code>state</code> 在按 <code>F7</code> 重载后<strong>清空</strong>。
+不要把它当持久化存储 —— 需要跨会话保存的东西请用车辆自定义配置（见下）。</div>
+
+<h2>车辆自定义配置</h2>
+<p>与 <code>state</code> 不同，这些值会同步到服务端并随存档保留。</p>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>train.getCustomConfigs()</code></td><td>取全部配置，返回 <code>Map&lt;String,String&gt;</code></td></tr><tr><td><code>train.putCustomConfig(key, value)</code></td><td>写入单项</td></tr><tr><td><code>train.removeCustomConfig(key)</code></td><td>删除单项</td></tr><tr><td><code>train.setCustomConfigs(map)</code></td><td>整体替换</td></tr><tr><td><code>train.sendCustomConfigsUpdateC2S()</code></td><td>把改动发往服务端，<strong>改完必须调用</strong></td></tr></table></div>
+<pre><code><span class="k">var</span> cfg = train.<span class="f">getCustomConfigs</span>();
+<span class="k">if</span> (cfg.<span class="f">get</span>(<span class="s">"pis_lang"</span>) !== <span class="s">"zh"</span>) {
+  train.<span class="f">putCustomConfig</span>(<span class="s">"pis_lang"</span>, <span class="s">"zh"</span>);
+  train.<span class="f">sendCustomConfigsUpdateC2S</span>();
+}
+</code></pre>
+
+<div class="warn">写配置<strong>不要放在 <code>render</code> 里无条件执行</strong> ——
+每帧发包会淹掉网络。先比较、有变化才写。</div>
+
+<h2>配置响应器</h2>
+<p>让玩家能在界面里调你的脚本参数：</p>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>train.registerCustomConfig(responder)</code></td><td>注册一个可交互配置项</td></tr><tr><td><code>train.getCustomResponders()</code></td><td>取已注册的全部响应器</td></tr><tr><td><code>train.setConfigResponders(map)</code></td><td>整体替换</td></tr></table></div>
+<p>响应器类型通过全局 <code>ConfigResponder</code> 构造。</p>
+
+<h2><code>ctx</code> —— 运行时上下文</h2>
+<p>承载绘制调用缓冲区。日常主要用它提交绘制，见<a href="api-draw.html">绘制 API</a>。</p>
+<p>另有两个只读标志可直接从 <code>train</code> 取：</p>
+<div class="tw"><table><tr><th>属性</th><th>类型</th><th>说明</th></tr><tr><td><code>train.shouldRender</code></td><td>boolean</td><td>该车当前是否在渲染范围内</td></tr><tr><td><code>train.isInDetailDistance</code></td><td>boolean</td><td>是否在细节渲染距离内</td></tr><tr><td><code>train.previousDoorValue</code></td><td>float</td><td>上一帧门开度</td></tr><tr><td><code>train.currentDoorValue</code></td><td>float</td><td>当前帧门开度</td></tr></table></div>
+<div class="note">这四个是<strong>字段不是方法</strong>，不要写成 <code>train.shouldRender()</code>。
+另有同名方法 <code>train.shouldRender()</code> 与 <code>train.shouldRenderDetail()</code> 也可用，
+两种写法都成立，但别混。</div>
+<div class="pager"><a href="lifecycle.html">← 生命周期与线程</a><a href="api-train.html">列车 API →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

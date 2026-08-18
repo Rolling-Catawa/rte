@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资源与字体 · RTE 脚本手册</title>
+<meta name="description" content="全局 Resources 对象：读文件、读字体、读图、打日志。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html" class="on">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 资源与字体</div>
+<h1>资源与字体</h1>
+<p class="lede">全局 Resources 对象：读文件、读字体、读图、打日志。</p>
+<h2>路径</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>Resources.id(text)</code></td><td>构造资源路径，等同 <code>identifier()</code></td></tr><tr><td><code>Resources.identifier(text)</code></td><td>同上，全称写法</td></tr><tr><td><code>Resources.idRelative(text)</code></td><td>相对当前脚本所在命名空间构造</td></tr><tr><td><code>Resources.idr(text)</code></td><td>同上，简写</td></tr></table></div>
+<pre><code><span class="k">var</span> path = Resources.<span class="f">id</span>(<span class="s">"mypack:textures/lcd.png"</span>);
+</code></pre>
+
+<h2>读取</h2>
+<div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>readString(id)</code></td><td>String</td><td>按文本读</td></tr><tr><td><code>readStream(id)</code></td><td>InputStream</td><td>按流读</td></tr><tr><td><code>readBufferedImage(id)</code></td><td>BufferedImage</td><td>读图片</td></tr><tr><td><code>readFont(id)</code></td><td>Font</td><td>读字体文件</td></tr><tr><td><code>hasResource(id)</code></td><td>boolean</td><td>是否存在</td></tr><tr><td><code>parseNbtString(text)</code></td><td>CompoundTag</td><td>解析 NBT 字符串</td></tr><tr><td><code>readJsonResource(path)</code></td><td>String</td><td>读 JSON 文本</td></tr><tr><td><code>listResources(prefix)</code></td><td>String[]</td><td>按前缀列出资源</td></tr></table></div>
+<div class="note">读之前先用 <code>hasResource()</code> 判一下。
+资源缺失时直接读会抛异常，而<a href="lifecycle.html">连续失败会让整个函数被暂停</a>。</div>
+
+<h2>字体</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>readFont(id)</code></td><td>从资源包读字体文件</td></tr><tr><td><code>getSystemFont(name)</code></td><td>取系统字体</td></tr><tr><td><code>getFontRenderContext()</code></td><td>取字体渲染上下文，用于测量文本尺寸</td></tr><tr><td><code>ensureStrFonts(text, font)</code></td><td>为文本准备字体，处理缺字回退</td></tr><tr><td><code>clearFontCache()</code></td><td>清空字体缓存</td></tr></table></div>
+<pre><code><span class="k">var</span> f = Resources.<span class="f">readFont</span>(Resources.<span class="f">id</span>(<span class="s">"mypack:font/lcd.ttf"</span>));
+<span class="k">var</span> big = f.<span class="f">deriveFont</span>(<span class="n">48.0</span>);
+</code></pre>
+<p>中文字体缺字时用 <code>ensureStrFonts()</code>，它会处理回退，避免出现方块。</p>
+
+<h2>脚本组织</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>includeScript(pathOrId)</code></td><td>引入另一个脚本文件</td></tr><tr><td><code>print(...)</code></td><td>写日志，可传多个参数</td></tr><tr><td><code>getRTEVersion()</code></td><td>取 RTE 版本号</td></tr><tr><td><code>getNTEVersion()</code></td><td>取 NTE 版本号，未安装时可用于分支</td></tr></table></div>
+<pre><code>Resources.<span class="f">print</span>(<span class="s">"车速"</span>, train.<span class="f">speedKmh</span>(), <span class="s">"下一站"</span>, train.<span class="f">nextStationName</span>());
+</code></pre>
+<div class="warn"><code>print</code> 在 <code>render</code> 里<strong>必须限流</strong>。
+一辆 8 编组的车每秒能产生几百行，几辆车就能把 <code>latest.log</code> 撑到几百 MB。</div>
+<div class="pager"><a href="api-graphics.html">← 动态贴图与 LCD</a><a href="api-client.html">客户端、声音、粒子 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

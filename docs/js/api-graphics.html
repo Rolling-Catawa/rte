@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>动态贴图与 LCD · RTE 脚本手册</title>
+<meta name="description" content="车内屏幕的实现方式：用 Java2D 画到 BufferedImage，再上传成贴图。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html" class="on">动态贴图与 LCD</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 动态贴图与 LCD</div>
+<h1>动态贴图与 LCD</h1>
+<p class="lede">车内屏幕的实现方式：用 Java2D 画到 BufferedImage，再上传成贴图。</p>
+<h2>整体流程</h2>
+<ol>
+<li>创建 <code>GraphicsTexture</code></li>
+<li>用 Java 的 <code>BufferedImage</code> 与 <code>Graphics2D</code> 画内容</li>
+<li>调 <code>upload()</code> 传给 GPU</li>
+<li>把贴图用到模型上</li>
+<li>不用时 <code>close()</code></li>
+</ol>
+
+<h2>GraphicsTexture</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr><tr><td><code>upload()</code></td><td>上传当前内容</td></tr><tr><td><code>upload(image)</code></td><td>上传指定的 <code>BufferedImage</code></td></tr><tr><td><code>close()</code></td><td>立即释放</td></tr><tr><td><code>close(delay)</code></td><td>延迟释放</td></tr><tr><td><code>isClosed()</code></td><td>是否已释放</td></tr><tr><td><code>createArgbBufferedImage(src)</code></td><td>转成 ARGB 格式，上传前通常需要</td></tr><tr><td><code>liveCount()</code></td><td>当前存活的贴图数，排查泄漏用</td></tr></table></div>
+<div class="warn"><strong>贴图必须 <code>close()</code>。</strong>
+每张都占显存，忘了释放就是泄漏。
+在 <code>dispose</code> 里关掉，或用 <code>liveCount()</code> 盯着数量。</div>
+
+<h2>一个 LCD 的骨架</h2>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
+  state.tex  = <span class="k">null</span>;
+  state.shown = <span class="k">null</span>;
+}
+
+<span class="k">function</span> <span class="f">render</span>(ctx, state, train) {
+  <span class="k">if</span> (!train.<span class="f">shouldRender</span>()) <span class="k">return</span>;
+
+  <span class="k">var</span> text = train.<span class="f">nextStationName</span>();
+  <span class="k">if</span> (text === state.shown) <span class="k">return</span>;   <span class="c">// 没变就不重画</span>
+  state.shown = text;
+
+  <span class="k">var</span> img = <span class="k">new</span> java.awt.image.<span class="f">BufferedImage</span>(
+      <span class="n">512</span>, <span class="n">128</span>, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+  <span class="k">var</span> g = img.<span class="f">createGraphics</span>();
+  g.<span class="f">setColor</span>(java.awt.Color.BLACK);
+  g.<span class="f">fillRect</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">512</span>, <span class="n">128</span>);
+  g.<span class="f">setColor</span>(java.awt.Color.WHITE);
+  g.<span class="f">setFont</span>(Resources.<span class="f">readFont</span>(Resources.<span class="f">id</span>(<span class="s">"mypack:font/lcd.ttf"</span>)).<span class="f">deriveFont</span>(<span class="n">48</span>));
+  g.<span class="f">drawString</span>(<span class="s">"下一站 "</span> + text, <span class="n">20</span>, <span class="n">80</span>);
+  g.<span class="f">dispose</span>();
+
+  <span class="k">if</span> (state.tex === <span class="k">null</span>) state.tex = <span class="k">new</span> <span class="f">GraphicsTexture</span>();
+  state.tex.<span class="f">upload</span>(img);
+}
+
+<span class="k">function</span> <span class="f">dispose</span>(ctx, state, train) {
+  <span class="k">if</span> (state.tex !== <span class="k">null</span>) state.tex.<span class="f">close</span>();
+}
+</code></pre>
+
+<div class="note"><code>java.awt</code> 在<a href="security.html">白名单</a>内，可直接使用
+<code>BufferedImage</code>、<code>Graphics2D</code>、<code>Color</code>、<code>Font</code> 等。</div>
+
+<h2>只在必要时重画</h2>
+<p>这是 LCD 脚本最容易出问题的地方。每帧重画一张 512×128 的图并上传，
+一辆 8 编组的车就是每秒几百次 —— 帧率会掉得很明显。</p>
+<p>正确做法是<strong>比对内容</strong>：站名没变、时间没跨秒、滚动位置没动，就直接返回。
+上面例子里的 <code>state.shown</code> 就是干这个的。</p>
+
+<h2>贴图上限</h2>
+<p>客户端配置 <code>scriptTextureLimit</code> 限制脚本动态贴图的缓存数量，默认 512。
+超过后旧贴图会被淘汰。</p>
+<div class="pager"><a href="api-draw.html">← 绘制 API</a><a href="api-resource.html">资源与字体 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>
