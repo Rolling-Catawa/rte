@@ -54,7 +54,7 @@
 
 1. 模组版本与加载器(Fabric / Forge)
 2. MTR 版本
-3. `logs/latest.log`(必要时先 `/rte debug on` 复现一次)
+3. `logs/latest.log`(必要时先按 `O` 开启 `enableRenderDiagnostics` 复现一次)
 4. 用到的资源包
 
 ---
