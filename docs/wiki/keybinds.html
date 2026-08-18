@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>键位与命令 · RTE 物品 Wiki</title>
+<meta name="description" content="全部键位与命令，取自代码实况。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+<li><a href="bridge-creator.html">桥梁创建器</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+<li><a href="turnstile.html">参观量统计闸机</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="keybinds.html" class="on">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 键位与命令</div>
+<h1>键位与命令</h1>
+<p class="lede">全部键位与命令，取自代码实况。</p>
+<h2>键位</h2>
+<div class="tw"><table><tr><th>键</th><th>功能</th></tr><tr><td><code>R</code></td><td><strong>对着轨道按下，直接打开轨道编辑界面。</strong>不用手持刷子，准星对准轨道模型上任意位置即可，不限于节点方块</td></tr><tr><td><code>I</code></td><td>打开列车界面</td></tr><tr><td><code>O</code></td><td>打开 RTE 配置界面</td></tr><tr><td><code>F7</code></td><td>重载 RTE 客户端资源 —— 重新读取资源包里的轨道模型、脚本等，不用退出游戏</td></tr></table></div>
+<p>键位都可以在原版的「控制」设置里改。</p>
+
+<h2>命令</h2>
+<div class="tw"><table><tr><th>命令</th><th>说明</th></tr><tr><td><code>/rte repairrails</code></td><td>扫描并修复整个世界里损坏的轨道数据。需要 OP（权限等级 2）</td></tr><tr><td><code>/rte fixoneway</code></td><td>修正单向轨的方向数据。需要 OP（权限等级 2）</td></tr></table></div>
+<div class="warn"><strong>没有 <code>/rte debug</code> 命令。</strong>
+调试开关在配置界面里 —— 按 <code>O</code> 打开，开 <code>enableRenderDiagnostics</code>。
+服务端诊断改存档目录下 <code>rte_config.json</code> 的 <code>enableNetworkDiagnostics</code>。</div>
+
+<h2>通用操作</h2>
+<div class="tw"><table><tr><th>操作</th><th>效果</th></tr><tr><td><strong>蹲下 + 右键空气</strong></td><td>撤销上一步</td></tr><tr><td><strong>空手右键空气</strong></td><td>打开该工具的界面（多数工具支持）</td></tr></table></div>
+<div class="pager"><a href="turnstile.html">← 参观量统计闸机</a><a href="creative-tabs.html">创造模式标签页 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

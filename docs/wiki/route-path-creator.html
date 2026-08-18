@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>路线路径创建器 · RTE 物品 Wiki</title>
+<meta name="description" content="把一段段轨道串成一条能跑车的营运线路。校验很严，但错误提示会告诉你卡在哪。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html" class="on">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+<li><a href="bridge-creator.html">桥梁创建器</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+<li><a href="turnstile.html">参观量统计闸机</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 路线路径创建器</div>
+<h1>路线路径创建器</h1>
+<p class="lede">把一段段轨道串成一条能跑车的营运线路。校验很严，但错误提示会告诉你卡在哪。</p>
+<h2>用法</h2>
+<div class="tw"><table><tr><th>操作</th><th>结果</th></tr><tr><td><strong>右键轨道节点</strong></td><td>把该节点接进当前线路</td></tr><tr><td><strong>空手右键空气</strong></td><td>打开界面，填线路名与颜色，确认建线</td></tr><tr><td><strong>蹲下右键空气</strong></td><td>撤销上一步</td></tr></table></div>
+<p>物品的 tooltip 会<strong>实时显示已连的每一段</strong> —— 起终点、长度、停站时间，
+串到一半也能随时看清进度。</p>
+
+<h2>建线流程</h2>
+<ol>
+<li>右键第一个站台所在的轨道节点</li>
+<li>沿线依次右键后续节点</li>
+<li>空手右键空气打开界面</li>
+<li>填线路名、选颜色</li>
+<li>确认建线</li>
+</ol>
+
+<h2>校验规则</h2>
+<p>不满足这些条件会被拒绝，并给出对应提示：</p>
+<div class="tw"><table><tr><th>规则</th><th>说明</th></tr><tr><td><strong>起点必须是站台</strong></td><td>线路必须从站台开始</td></tr><tr><td><strong>起点不能折返</strong></td><td>第一站不允许设为折返点</td></tr><tr><td><strong>拒绝单向轨</strong></td><td>单向轨不能纳入线路</td></tr><tr><td><strong>折返位置受限</strong></td><td>非折返轨与非站台之间不允许折返</td></tr><tr><td><strong>角度校验</strong></td><td>相邻段夹角不合理时拒绝</td></tr></table></div>
+<div class="note">折返点会<strong>自动补停站时间</strong>，不用手动填。</div>
+
+<h2>常见错误</h2>
+<div class="tw"><table><tr><th>提示</th><th>原因</th></tr><tr><td>必须以站台开始</td><td>第一个节点不是站台，换个起点</td></tr><tr><td>起点不能折返</td><td>取消第一站的折返标记</td></tr><tr><td>非法折返</td><td>折返点必须在站台或折返轨上</td></tr><tr><td>找不到轨道</td><td>右键的位置没有轨道节点</td></tr><tr><td>角度不合法</td><td>相邻两段的夹角过大</td></tr></table></div>
+<div class="pager"><a href="rail-path-editor.html">← 轨道路径编辑器</a><a href="compound-creator.html">复合创建器 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

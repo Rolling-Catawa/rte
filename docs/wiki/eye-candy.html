@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>装饰物件 · RTE 物品 Wiki</title>
+<meta name="description" content="摆放装饰模型的通用方块。既是装饰，也是沿线阵列的样板。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+<li><a href="bridge-creator.html">桥梁创建器</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="eye-candy.html" class="on">装饰物件</a></li>
+<li><a href="turnstile.html">参观量统计闸机</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 装饰物件</div>
+<h1>装饰物件</h1>
+<p class="lede">摆放装饰模型的通用方块。既是装饰，也是沿线阵列的样板。</p>
+<h2>两个身份</h2>
+<ol>
+<li><strong>装饰</strong> —— 摆一个模型在世界里</li>
+<li><strong>样板</strong> —— 沿线阵列会照着它复制一整条线</li>
+</ol>
+
+<h2>内置模型</h2>
+<div class="tw"><table><tr><th>名称</th><th>ID</th></tr><tr><td>站台长椅</td><td><code>rte_bench</code></td></tr><tr><td>站台栏杆</td><td><code>rte_railing</code></td></tr><tr><td>立柱</td><td><code>rte_pillar</code></td></tr><tr><td>垃圾桶</td><td><code>rte_trash_bin</code></td></tr><tr><td>灯箱</td><td><code>rte_lightbox</code></td></tr><tr><td>站台警示条</td><td><code>rte_warning_strip</code></td></tr><tr><td>Utah 茶壶</td><td><code>rte_teapot</code></td></tr></table></div>
+<p>资源包可以注册更多物件，会一并出现在「装饰物件」标签页里。</p>
+
+<h2>属性编辑器</h2>
+<p>放置后可打开属性面板，逐项调整：</p>
+<div class="tw"><table><tr><th>属性</th><th>说明</th></tr><tr><td><strong>形状</strong></td><td>在该物件提供的多个形状之间切换</td></tr><tr><td><strong>外观</strong></td><td>切换外观变体</td></tr><tr><td><strong>碰撞箱</strong></td><td>设置碰撞行为</td></tr><tr><td><strong>作为站台</strong></td><td>让该物件被识别为站台</td></tr><tr><td><strong>全亮</strong></td><td>忽略环境光照，始终满亮</td></tr><tr><td><strong>位姿</strong></td><td>调整位置与朝向，可一键重置</td></tr></table></div>
+<div class="note">部分物件的<strong>模型位置被固定</strong>，面板会提示「无法编辑」。
+这是资源包作者的设定，不是 bug。</div>
+
+<h2>沿线阵列</h2>
+<p>摆好一个当样板，用沿线阵列沿整条轨道复制 —— 站台栏杆、警示条这类
+需要重复几百次的东西，一次搞定。</p>
+
+<h2>自定义</h2>
+<p>资源包可以提供自己的装饰物件，支持自定义模型与脚本驱动。
+脚本部分见 <a href="../js/index.html">JS 脚本手册</a>。</p>
+<div class="pager"><a href="direct-node.html">← 直线节点</a><a href="turnstile.html">参观量统计闸机 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

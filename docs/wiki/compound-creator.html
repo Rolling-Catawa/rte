@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>复合创建器 · RTE 物品 Wiki</title>
+<meta name="description" content="画一次断面，沿整条轨道扫出来。弯道自动跟随转向，超高段自动跟随滚转。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html" class="on">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+<li><a href="bridge-creator.html">桥梁创建器</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+<li><a href="turnstile.html">参观量统计闸机</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 复合创建器</div>
+<h1>复合创建器</h1>
+<p class="lede">画一次断面，沿整条轨道扫出来。弯道自动跟随转向，超高段自动跟随滚转。</p>
+<h2>这件工具解决什么</h2>
+<p>手工铺隧道或桥梁时，直线段还算能忍，弯道要手动转朝向，越弯越难对齐；
+超高段基本做不了 —— 断面得跟着滚转。</p>
+<p>复合创建器把这件事变成：<strong>画一次断面，点一下。</strong></p>
+
+<h2>用法</h2>
+<div class="tw"><table><tr><th>操作</th><th>结果</th></tr><tr><td><strong>空手右键空气</strong></td><td>打开界面，在空画布上画断面</td></tr><tr><td><strong>右键轨道</strong></td><td>把断面沿该轨道扫出来</td></tr><tr><td><strong>蹲下右键空气</strong></td><td>撤销</td></tr></table></div>
+
+<h2>自动跟随</h2>
+<div class="tw"><table><tr><th>轨道情况</th><th>断面行为</th></tr><tr><td>直线段</td><td>按原样重复</td></tr><tr><td><strong>弯道</strong></td><td>自动跟随转向，始终垂直于轨道</td></tr><tr><td><strong>超高段</strong></td><td>自动跟随滚转，与轨道一起倾斜</td></tr><tr><td>坡度段</td><td>跟随俯仰</td></tr></table></div>
+<div class="note">这是它与「建筑小帮手」一类工具的关键差别 ——
+后者复制的是固定朝向的方块阵列，遇到弯道和超高就对不上。</div>
+
+<h2>组合任务</h2>
+<p>界面支持把多个断面组成一组任务批量执行，一次扫出复杂的复合结构。</p>
+
+<h2>常见提示</h2>
+<div class="tw"><table><tr><th>提示</th><th>原因</th></tr><tr><td>没有任务</td><td>画布是空的，先画断面</td></tr><tr><td>找不到轨道</td><td>右键的位置没有轨道</td></tr><tr><td>修饰器已应用 / 失败</td><td>断面修饰器的执行结果</td></tr><tr><td>切片完成</td><td>扫描执行完毕</td></tr></table></div>
+
+<div class="warn">在长线路上执行会一次性放置大量方块。
+先在短段上试一次确认断面正确，再对整条线执行。</div>
+<div class="pager"><a href="route-path-creator.html">← 路线路径创建器</a><a href="displacement-tool.html">位移工具 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

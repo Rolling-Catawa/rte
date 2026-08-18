@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>轨道路径编辑器 · RTE 物品 Wiki</title>
+<meta name="description" content="最常用的一件。改线形、超高、限速、开门方向，都在这个界面里。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html" class="on">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+<li><a href="bridge-creator.html">桥梁创建器</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+<li><a href="turnstile.html">参观量统计闸机</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 轨道路径编辑器</div>
+<h1>轨道路径编辑器</h1>
+<p class="lede">最常用的一件。改线形、超高、限速、开门方向，都在这个界面里。</p>
+<h2>用法</h2>
+<div class="tw"><table><tr><th>操作</th><th>结果</th></tr><tr><td><strong>对着轨道右键</strong></td><td>打开该段轨道的编辑界面</td></tr><tr><td><strong>空手右键空气</strong></td><td>打开设置界面</td></tr><tr><td><strong>按 <code>R</code></strong></td><td>不用手持本物品，准星对准轨道直接打开编辑界面</td></tr></table></div>
+<div class="note"><code>R</code> 键是更快的入口 —— 准星对准轨道模型上<strong>任意位置</strong>即可，
+不限于节点方块。准星前方没有轨道时会提示「准星前方没有找到轨道」。
+键位可在原版「控制」设置里改。</div>
+
+<h2>界面里能改什么</h2>
+<div class="tw"><table><tr><th>项</th><th>说明</th></tr><tr><td><strong>路径模式</strong></td><td>原生、自动贝塞尔、多点曲线拟合、手动贝塞尔四选一</td></tr><tr><td><strong>超高（滚转角）</strong></td><td>沿轨道分布的侧倾。可设多个位置的角度，轨道网格实时扭出超高</td></tr><tr><td><strong>竖曲线</strong></td><td>可设半径，坡度以千分比显示</td></tr><tr><td><strong>限速</strong></td><td>本段轨道的速度上限</td></tr><tr><td><strong>开门方向</strong></td><td>左侧、右侧或双侧</td></tr><tr><td><strong>对齐接缝</strong></td><td>让本段与相邻轨道端点自动对齐</td></tr></table></div>
+
+<h2>几何评级</h2>
+<p>界面里有一条评级条，随参数实时变化：</p>
+<div class="tw"><table><tr><th>评级</th><th>含义</th></tr><tr><td><strong>过急</strong></td><td>曲率过大，实际列车通过会很不舒服</td></tr><tr><td><strong>较急</strong></td><td>可通行但偏紧</td></tr><tr><td><strong>舒适</strong></td><td>几何参数合理</td></tr></table></div>
+<p>旁边会给出<strong>建议速度</strong>，随曲率和超高一起变。</p>
+
+<div class="warn">改超高后记得点<strong>对齐接缝</strong>。相邻两段超高不一致时，
+接缝处会有一个突变，坐在车里能明显感觉到。</div>
+
+<h2>界面不会暂停游戏</h2>
+<p>RTE 的界面不会让世界变暗，也不会暂停游戏 —— 开着界面时列车照跑、光照照变。
+拖超高滑条时可以直接看到轨道在同一帧里跟着倾斜。</p>
+<div class="pager"><a href="index.html">← 总览</a><a href="route-path-creator.html">路线路径创建器 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>
