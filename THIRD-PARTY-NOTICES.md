@@ -13,7 +13,8 @@ are derived from the `sowcer` and `sowcerext` packages of Nemo's Transit Expansi
 
 **Code only.** No NTE models, textures or sounds are bundled with RTE. The D51 and
 DK3 assets previously present were removed on 2026-08-18 — see `ASSET_AUDIT.md`.
-Users who want those vehicles should install NTE itself.
+NTE targets MTR 3.x and cannot be installed alongside MTR 4, so those vehicles are
+simply not available in RTE.
 
 ```
 MIT License
