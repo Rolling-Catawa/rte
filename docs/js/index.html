@@ -25,6 +25,7 @@
 <li><a href="api-train.html">列车 API</a></li>
 <li><a href="api-draw.html">绘制 API</a></li>
 <li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
 </ul>
@@ -45,6 +46,7 @@
 <li>把内容画到动态贴图上 —— 车内 LCD、线路图、到站显示</li>
 <li>提交自绘模型的绘制调用</li>
 <li>播放声音、发射粒子</li>
+<li>接收玩家右键 —— 按钮、驾驶台、手动开关门</li>
 </ul>
 
 <h2>两套引擎</h2>
@@ -54,8 +56,24 @@
 <tr><td><code>graal</code></td><td>GraalVM JavaScript，语法更新（支持 ES6+），性能通常更好。</td></tr>
 <tr><td><code>auto</code></td><td>由 RTE 决定。</td></tr>
 </table></div>
-<p>客户端配置项 <code>scriptEngine</code> 设默认引擎；资源包可用 <code>engine</code> 字段单独指定，
-资源包的声明优先。</p>
+<p>默认是 <code>rhino</code>。优先级为
+<strong>按车辆/资源包覆盖 &gt; 客户端配置 <code>scriptEngine</code> &gt; 资源包自带的 <code>engine</code> 字段</strong>。</p>
+<p>客户端配置项 <code>scriptEngineOverrides</code> 可为单个车辆或一批车辆单独指定引擎，
+键支持 <code>*</code> 后缀通配，多个模式命中时取最长前缀：</p>
+<pre><code>{
+  <span class="s">"scriptEngine"</span>: <span class="s">"rhino"</span>,
+  <span class="s">"scriptEngineOverrides"</span>: {
+    <span class="s">"mtr_custom_train_njmtr_s4"</span>: <span class="s">"graal"</span>,
+    <span class="s">"mtr_custom_train_wh_*"</span>: <span class="s">"graal"</span>
+  }
+}
+</code></pre>
+<p>重脚本（TCMS、复杂 LCD）单独走 <code>graal</code>、其余留在 <code>rhino</code>，
+不必全局二选一。</p>
+
+<div class="warn"><strong>Java 22 及以上无法使用 GraalJS。</strong>
+内置的 GraalJS 依赖一个在 JDK 22 中被移除的内部方法，RTE 会在这类 JVM 上
+直接改用 Rhino，不再尝试 Graal。Rhino 在 JDK 17 / 21 / 24 上均可用。</div>
 
 <div class="note">Rhino 与 GraalJS 的 Java 互操作语义<strong>不完全一致</strong>。
 为 Rhino 写的脚本在 GraalJS 下可能需要调整，反之亦然。
@@ -73,13 +91,13 @@
   }
 }
 </code></pre>
-<p>三个入口函数 <code>create</code> / <code>render</code> / <code>dispose</code>，签名一致。
-详见<a href="lifecycle.html">生命周期与线程</a>。</p>
+<p>四个入口函数 <code>create</code> / <code>render</code> / <code>dispose</code> / <code>use</code>。
+详见<a href="lifecycle.html">生命周期与线程</a>与<a href="api-interaction.html">交互与 use 回调</a>。</p>
 
 <h2>本手册的编写方式</h2>
 <p>所有 API 签名、函数名、配置项名均<strong>直接取自源码</strong>，
 不是从旧版文档抄的。若你发现与实际不符，请<a href="https://github.com/Rolling-Catawa/rte/issues">开 Issue</a> —— 那是文档的 bug。</p>
-<p>本手册对应 RTE <code>1.0.0-beta.1</code>。</p>
+<p>本手册对应 RTE <code>1.0.0-beta.2</code>。</p>
 <div class="pager"><span></span><a href="quickstart.html">第一个脚本 →</a></div>
 <footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
 </main>

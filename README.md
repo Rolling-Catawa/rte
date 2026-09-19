@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| 版本 | 1.0.0-beta.1 |
-| Minecraft | 1.20.1 |
+| 版本 | 1.0.0-beta.2 |
+| Minecraft | 1.20.1 / 1.20.4 |
 | 加载器 | Fabric / Forge(Architectury) |
 | 必需前置 | Minecraft Transit Railway 4.0.0+ |
 | 可选前置 | MSD(接触网功能需要) |
@@ -123,6 +123,8 @@ RTE 的数据以附加字段形式挂载于 MTR 轨道序列化结构之上,不�
 
 - [使用手册](MANUAL.md) —— 键位、命令、逐功能操作说明、配置项全表与已知问题
 - [功能列表](FEATURES.md) —— 完整清单
+- [更新日志](CHANGELOG.md) —— 各版本的改动明细
+- [JS 脚本手册](https://rolling-catawa.github.io/rte/js/) —— 资源包脚本 API
 
 ## 许可
 

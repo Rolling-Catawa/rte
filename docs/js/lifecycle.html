@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>生命周期与线程 · RTE 脚本手册</title>
-<meta name="description" content="三个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。">
+<meta name="description" content="四个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,6 +25,7 @@
 <li><a href="api-train.html">列车 API</a></li>
 <li><a href="api-draw.html">绘制 API</a></li>
 <li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
 </ul>
@@ -37,11 +38,12 @@
 <main>
 <div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 生命周期与线程</div>
 <h1>生命周期与线程</h1>
-<p class="lede">三个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。</p>
-<h2>三个入口函数</h2>
+<p class="lede">四个入口函数、调用时机、以及一个必须知道的事实：脚本不在主线程跑。</p>
+<h2>四个入口函数</h2>
 <pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) { }
 <span class="k">function</span> <span class="f">render</span>(ctx, state, train) { }
 <span class="k">function</span> <span class="f">dispose</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">use</span>(ctx, state, train, event) { }
 </code></pre>
 
 <div class="tw"><table>
@@ -49,6 +51,7 @@
 <tr><td><code>create</code></td><td>该车首次进入渲染范围时调用一次。用来初始化 <code>state</code>。</td></tr>
 <tr><td><code>render</code></td><td><code>create</code> 成功后每帧调用。</td></tr>
 <tr><td><code>dispose</code></td><td>该车不再需要渲染时调用。之后若再次进入范围，会重新走 <code>create</code>。</td></tr>
+<tr><td><code>use</code></td><td>玩家右键命中脚本登记的可点击区域时调用。见<a href="api-interaction.html">交互与 use 回调</a>。</td></tr>
 </table></div>
 
 <h3>带后缀的变体</h3>
@@ -56,6 +59,7 @@
 <pre><code><span class="k">function</span> <span class="f">createTrain</span>(ctx, state, train) { }
 <span class="k">function</span> <span class="f">renderTrain</span>(ctx, state, train) { }
 <span class="k">function</span> <span class="f">disposeTrain</span>(ctx, state, train) { }
+<span class="k">function</span> <span class="f">useTrain</span>(ctx, state, train, event) { }
 </code></pre>
 <p>两组都定义时<strong>两组都会执行</strong>（先无后缀、后带后缀）。
 多个脚本文件里定义同名函数时，也是全部按加载顺序依次调用 —— 后者不会覆盖前者。</p>

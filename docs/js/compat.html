@@ -25,6 +25,7 @@
 <li><a href="api-train.html">列车 API</a></li>
 <li><a href="api-draw.html">绘制 API</a></li>
 <li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
 </ul>
@@ -66,10 +67,24 @@ RTE 的 <code>legacyDefaultTextureFallback</code> 开关把它放宽为按文件
 <p>在资源包里用 <code>engine</code> 字段指定，或让用户在客户端配置 <code>scriptEngine</code> 里选。
 注意：客户端设成具体引擎时会<strong>覆盖</strong>资源包的声明。</p>
 
-<h2>与 JCM 共存</h2>
-<p>Joban Client Mod 也带 JS 脚本系统，在「跑 3.x 包脚本」这件事上与 RTE 重叠。
-RTE 检测到 JCM 时会提示，让用户选择由谁接管，避免双重渲染。
-对应配置项是 <code>jcmJsChoice</code>。</p>
+<h2>与 JCM、方速、S1 共存</h2>
+<p>这几个附属都会改动 MTR 的同一批代码。双方都在同一处注入并取消原版时，
+只有先跑的一方生效，另一方<strong>静默失效且不报错</strong> —— 表现为「装了 A 之后 B 的功能就没了」。</p>
+<p>RTE 检测到它们时会弹一次仲裁窗口，按领域让你指定由谁接管：
+轨道角度运算、节点右键、轨道预览角度、单向箭头、网格去重、车辆脚本、眼糖脚本。
+同一领域有两个以上附属在场时，还可展开「按附属分别设置」。</p>
+<p>RTE 只能仲裁自己一侧，即主动让位，无法关闭对方的注入。
+脚本域另有「自动去重」—— 逐个实例检测该车辆/眼糖是否已被 JCM 接管，是则本侧跳过。</p>
+<p>选择存在配置项 <code>compat</code> 中；旧的 <code>jcmJsChoice</code> 会被自动读为车辆脚本域的取值。</p>
+
+<h3>脚本可能从别的附属加载</h3>
+<p>资源包 <code>include</code> 的命名空间不一定由 RTE 提供。典型例子是
+<code>mtrsteamloco:scripts/display_helper.js</code> —— NTE 没有 4.x 版本，实际提供者是 JCM。
+于是<strong>脚本文件来自 JCM，却在 RTE 的引擎里执行</strong>，两边的 API 命名必须对得上。</p>
+<p>已知的一处差异是 <code>ModelManager.upload</code>（JCM）与 <code>uploadVertArrays</code>（RTE），
+两者语义相同，RTE 现已把 <code>upload</code> 补为别名。
+若你遇到 <code>TypeError: Cannot find function X in object ...</code>，
+多半就是这类命名差异，请<a href="https://github.com/Rolling-Catawa/rte/issues">开 Issue</a> 告知。</p>
 
 <h2>已知不兼容</h2>
 <p>并非所有 3.x 脚本都能原样跑。常见卡点：</p>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>交互与 use 回调 · RTE 脚本手册</title>
+<meta name="description" content="给车厢和装饰物件加可点击区域，右键时收到命中位置。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html" class="on">交互与 use 回调</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 交互与 use 回调</div>
+<h1>交互与 use 回调</h1>
+<p class="lede">给车厢和装饰物件划出可点击区域，玩家右键命中时收到局部坐标。按钮、驾驶台、开关门都能脚本化。</p>
+
+<h2>两步</h2>
+<p>先在 <code>create</code> 里声明区域，再在 <code>use</code> 里处理命中。</p>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
+  ctx.<span class="f">addUseBox</span>(<span class="s">"door_left"</span>, <span class="n">0</span>, <span class="n">-1.4</span>, <span class="n">1.0</span>, <span class="n">-1.2</span>, <span class="n">-1.2</span>, <span class="n">1.4</span>, <span class="n">-0.8</span>);
+  ctx.<span class="f">addUseBox</span>(<span class="s">"horn"</span>, <span class="n">0</span>, <span class="n">0.30</span>, <span class="n">1.05</span>, <span class="n">-2.10</span>, <span class="n">0.45</span>, <span class="n">1.15</span>, <span class="n">-2.00</span>);
+}
+
+<span class="k">function</span> <span class="f">use</span>(ctx, state, train, event) {
+  <span class="k">if</span> (event.box === <span class="s">"door_left"</span>) {
+    state.doorRequested = <span class="k">true</span>;
+  } <span class="k">else if</span> (event.box === <span class="s">"horn"</span>) {
+    state.hornUntil = Date.<span class="f">now</span>() + <span class="n">800</span>;
+  }
+}
+</code></pre>
+
+<div class="note"><strong>坐标和你画模型用的是同一套。</strong>
+不需要做任何换算 —— 按钮在模型里的位置，直接就是 <code>addUseBox</code> 的参数。</div>
+
+<h2>声明区域</h2>
+<div class="tw"><table>
+<tr><th>方法</th><th>说明</th></tr>
+<tr><td><code>ctx.addUseBox(id, car, x1, y1, z1, x2, y2, z2)</code></td>
+    <td>登记一个长方体区域。<code>id</code> 是你自己起的名字，<code>car</code> 是车厢序号（从 0 起）。同名会覆盖。</td></tr>
+<tr><td><code>ctx.addUseBox(id, x1, y1, z1, x2, y2, z2)</code></td>
+    <td>不带 <code>car</code> 的重载，等价于 <code>car = 0</code>。装饰物件用这个。</td></tr>
+<tr><td><code>ctx.removeUseBox(id)</code></td><td>移除一个区域。</td></tr>
+<tr><td><code>ctx.clearUseBoxes()</code></td><td>清空全部区域。</td></tr>
+<tr><td><code>ctx.useBoxCount()</code></td><td>当前区域数量，调试用。</td></tr>
+</table></div>
+
+<p>两个角点的顺序无所谓，内部会自动取最小/最大。</p>
+
+<h2>event 有什么</h2>
+<div class="tw"><table>
+<tr><th>字段</th><th>说明</th></tr>
+<tr><td><code>box</code></td><td>命中的区域 <code>id</code>。</td></tr>
+<tr><td><code>car</code></td><td>车厢序号。装饰物件恒为 0。</td></tr>
+<tr><td><code>x</code> <code>y</code> <code>z</code></td><td>命中点的局部坐标 —— 射线打在区域表面的那一点，不是区域中心。</td></tr>
+<tr><td><code>distance</code></td><td>玩家眼睛到命中点的距离。</td></tr>
+<tr><td><code>dirX</code> <code>dirY</code> <code>dirZ</code></td><td>视线方向的单位向量，已变换到局部坐标系。</td></tr>
+<tr><td><code>player</code></td><td>玩家包装对象。</td></tr>
+<tr><td><code>item</code></td><td>主手物品 id，空手为 <code>minecraft:air</code>。</td></tr>
+<tr><td><code>offhandItem</code></td><td>副手物品 id。</td></tr>
+<tr><td><code>sneaking</code></td><td>是否正在潜行。</td></tr>
+</table></div>
+
+<p>有了 <code>x/y/z</code>，一个大区域也能当多个按钮用 —— 比如整块驾驶台声明成一个 box，
+再按命中点的 X 判断按的是哪个键。</p>
+
+<h2>触发条件</h2>
+<div class="tw"><table>
+<tr><th></th><th>条件</th></tr>
+<tr><td>车厢</td><td>玩家<strong>正在乘车</strong>，且右键命中已登记的区域。最大距离 5 格。</td></tr>
+<tr><td>装饰物件</td><td>右键该方块。未命中任何区域时 <code>event</code> 为 <code>null</code>。</td></tr>
+</table></div>
+
+<div class="warn"><strong>没登记区域就完全不介入。</strong>
+不写 <code>addUseBox</code> 的脚本，右键行为和以前一模一样 —— 不会莫名其妙吃掉玩家的操作。</div>
+
+<h3>为什么是「先声明、后回调」</h3>
+<p>脚本跑在<a href="lifecycle.html">独立线程</a>，主线程不可能等它返回再决定要不要拦下这次右键。
+所以反过来：区域由脚本预先登记，主线程自己做射线命中，命中了才拦截原版右键，
+然后把事件异步派发给脚本。</p>
+
+<h2>装饰物件的写法</h2>
+<p>装饰物件的 <code>use</code> 多一个 <code>player</code> 参数，<code>event</code> 在最后：</p>
+<pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, block) {
+  ctx.<span class="f">addUseBox</span>(<span class="s">"switch"</span>, <span class="n">-0.2</span>, <span class="n">0.9</span>, <span class="n">-0.5</span>, <span class="n">0.2</span>, <span class="n">1.1</span>, <span class="n">-0.4</span>);
+}
+
+<span class="k">function</span> <span class="f">use</span>(ctx, state, block, player, event) {
+  <span class="k">if</span> (event &amp;&amp; event.box === <span class="s">"switch"</span>) {
+    state.on = !state.on;
+  }
+}
+</code></pre>
+<p>老脚本的 <code>use(ctx, state, block, player)</code> 照常工作 —— <code>event</code> 是追加在末尾的，
+不写它不影响任何已有代码。</p>
+
+<h2>带后缀的变体</h2>
+<p>和其他入口一样，<code>useTrain</code> / <code>useBlock</code> 同样会被调用，两组都定义则都执行。</p>
+
+<div class="pager"><a href="api-graphics.html">← 动态贴图与 LCD</a><a href="api-resource.html">资源与字体 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>
