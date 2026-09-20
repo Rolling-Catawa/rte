@@ -1,0 +1,46 @@
+name: JS 脚本问题
+description: 资源包脚本报错、渲染异常或 API 兼容问题
+title: "[Script] "
+labels: ["scripting"]
+assignees: []
+body:
+  - type: input
+    id: rte-version
+    attributes:
+      label: RTE 版本
+    validations:
+      required: true
+
+  - type: dropdown
+    id: engine
+    attributes:
+      label: JS 引擎
+      options:
+        - rhino
+        - graal
+        - auto
+    validations:
+      required: true
+
+  - type: input
+    id: resource-pack
+    attributes:
+      label: 资源包名称与版本
+    validations:
+      required: true
+
+  - type: textarea
+    id: script
+    attributes:
+      label: 相关脚本
+      render: javascript
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 完整日志
+      description: 请上传 logs/latest.log。
+    validations:
+      required: true

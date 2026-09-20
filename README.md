@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| 版本 | 1.0.0-beta.2 |
+| 版本 | 1.0.0-beta.3 |
 | Minecraft | 1.20.1 / 1.20.4 |
 | 加载器 | Fabric / Forge(Architectury) |
 | 必需前置 | Minecraft Transit Railway 4.0.0+ |

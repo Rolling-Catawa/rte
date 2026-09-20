@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 使用问题与讨论
+    url: https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion/discussions
+    about: 不是 Bug 的使用问题请前往 Discussions。
