@@ -7,65 +7,31 @@ Release notes for Rollingcats Transit Expansion.
 
 ## 1.0.0-beta.3
 
-### 新功能
+### English
 
-- 新增 Minecraft 1.20.4 支持，同时保留 1.20.1 支持。
-- 新增自由节点，支持非整数坐标、Y 轴位移及墙面吸附。
-- 新增可站立的轨道碰撞箱，支持多列排布、中间留空与 JS 自定义布局。
-- 支持 MTR 4 列车重联与混编：每个车组独立运行一份列车脚本，车厢数、车厢序号与行驶进度按车组计算，混编列车各组的 LCD 与车号正确显示；车头相对的车组之间不绘制连接处。
-- 新增 JS 调试面板，列出所有正在运行的列车脚本及其状态。
-- 资源工作台导出资源包时一并带上车辆音效（含 BVE 音效配置），并支持把多辆车合并导出为一个资源包。
-- 「O」键设置中可开关贴图降采样并选择边长上限，修改后可一键重载资源。
-- 增加游戏内版本提示、构建号和问题反馈入口。
-- ReplayMod 回放中可看到录制者手持节点工具时的自由节点标记、节点模型和 Gizmo（含拖动与旋转过程）。
+- Minecraft 1.20.4 builds are now released; 1.20.1 is still supported.
+- Free nodes: non-integer positions, Y offset and wall snapping, moved and rotated with a gizmo.
+- Standable rail collision boxes with multi-column layouts and script-defined layouts.
+- MTR 4 coupled and mixed consists: each unit runs its own train script, so LCDs and car numbers stay correct per unit; no gangway between units that meet cab to cab.
+- JS debug panel; texture downscaling options in the `O` settings; the resource workbench exports vehicle sounds and can merge several vehicles into one pack.
+- ReplayMod replays show free nodes and the gizmo.
+- Fixed memory leaks in long sessions; script work and LCD textures for a single-unit train drop to 1/2–1/3; a script call over 3 seconds is stopped and its file and line are logged.
+- Fixed doors, door lights, gangways, floors and multi-locomotive cab parts in legacy packs.
+- Fixed free node smoothing, one-way rail mirroring, manual Bézier defaults and route path angle checks; brush edits apply immediately.
+- Fixed missing OBJ materials in workbench exports, decorations not rendering with BBMODEL preloading, and several disconnect and script errors.
 
-### 性能与稳定性
+### 中文
 
-- 同一列车的脚本不再按车型重复执行，单车组列车的脚本开销与 LCD 贴图数量降至原来的 1/2～1/3。
-- 修复长时间游玩时脚本上下文和 LCD 贴图泄漏导致的内存持续增长（可至 16 GB 溢出）。
-- 资源包脚本出现死循环时，单次调用超过 3 秒即被中止并在日志中给出出错的脚本文件与行号，该函数暂停 30 秒，不再拖垮整个游戏。
-- 单次脚本调用创建超过 512 张贴图时立即中止，避免资源包脚本失控时占满内存。
-- 重联车组拆开后及时释放已不存在车组的脚本上下文；卡住的脚本恢复时清空积压的调用。
-- 修复脚本排队执行时列车状态被提前重置，导致连接处、信号屏等脚本绘制内容闪烁。
-- 优化模型和资源加载，减少进入世界时的卡顿。
-- 修复专用服务端读取轨道时刷出大量错误日志。
-- 修复 Rhino 脚本被游戏混淆类名干扰而无法启动。
-
-### 列车与旧版资源包兼容
-
-- 改善旧版资源包和列车脚本的兼容性，以及多款列车的车门、门灯、连接管与车内地板表现。
-- 修复三台及以上机车连挂时，中间机车的车头部件被过滤而不显示。
-- 修复旧版 OBJ 多节车厢零件位置翻转导致的车厢脱钩、车门错位。
-- 修复旧版资源包中 mirror 部件的车门前后开门方向相反。
-- 修复异步列车脚本读取过期车门状态导致的门灯常亮。
-- 修复旧车地板被门下零件拉到轨面以下。
-- 修复回放录像时 MTR 客户端数据在第一帧被清空，轨道不显示。
-
-### 轨道与编辑工具
-
-- 修复自由节点轨道无法平滑、刷子轨道模型叠加不生效、旧版多模型部件错位等问题。
-- 修复单向轨道按某些方向连接时轨道模型被镜像，刷子对单向轨道的“镜像”设置不能保存；旧存档中受影响的单向轨道读取时自动恢复。
-- 修复连接已有其他轨道的自由节点时，新轨道沿用 MTR 原始线形、忽略节点高度和朝向，与相邻轨道不一致。
-- 恢复直连节点的方块模型，手持轨道工具时显示的黄色节点条按节点实际角度绘制。
-- 修复手动贝塞尔编辑器默认控制点方向反了、曲线在终点折回。
-- 修复线路路径创建器对反方向行进的平滑线路、以及经过手动贝塞尔/曲线拟合轨道的线路误报“角度错误”。
-- 修复复合创建器“轨道修改”会改变自由节点轨道线形，部分角度组合被直接拒绝。
-- 修复轨道碰撞箱自定义布局与多列偏移（如 `-2,2`）在同步和存档后被截断；碰撞箱最小间距降至 0.01 m。
-- 修复刷子测距面板只显示在轨道一端，并改为按轨道实际走向计算水平长度与坡度。
-- 修复平行线工具与轨道换序时端点角度方向不一致。
-- 修复刷子编辑界面修改轨道模型、侧倾或偏移后，要等下一次刷新配置才生效；新模型贴图在后台预加载，加载完成前保留旧模型，不再闪空。
-- 改善轨道端点与连接显示效果。
-
-### 资源与界面
-
-- 修复资源工作台导出时遗漏 OBJ 的材质文件和贴图。
-- 修复开启「BBMODEL 预加载优化」后接触网支柱等装饰模型不渲染。
-- 修复贴图图集中旋转存放的贴图 UV 错误。
-- 资源包自带的连接处贴图每种只加载一次，并在渲染线程创建。
-- 路径恢复包不再混入世界数据包，只对已启用的资源包生效。
-- 补全两处缺失的界面翻译，移除已删除列车的残留翻译。
-- 说明“撤销”与空手切换路径模式需开启「替换 MTR 的轨道修改器界面」。
-- 修复多项可能导致断线、脚本报错或显示异常的问题。
+- 正式发布 Minecraft 1.20.4 版本，1.20.1 继续支持。
+- 新增自由节点：非整数坐标、Y 轴位移、墙面吸附，用 Gizmo 拖动和旋转。
+- 新增可站立的轨道碰撞箱，支持多列排布与 JS 自定义布局。
+- 支持 MTR 4 列车重联与混编：每个车组单独运行脚本，LCD 与车号按车组正确显示；车头相对的车组之间不画连接处。
+- 新增 JS 调试面板；「O」键设置可调贴图降采样；资源工作台可导出车辆音效，多辆车可合并导出为一个资源包。
+- ReplayMod 回放中显示自由节点与 Gizmo。
+- 修复长时间游玩的内存泄漏；单车组列车的脚本开销与 LCD 贴图数量降至 1/2～1/3；脚本单次运行超过 3 秒自动中止，并在日志中给出文件与行号。
+- 修复旧版资源包列车的车门、门灯、连接处、地板，以及多机车连挂时的车头部件。
+- 修复自由节点轨道平滑、单向轨道镜像、手动贝塞尔默认方向、线路路径创建器误报角度；刷子编辑立即生效。
+- 修复资源工作台导出遗漏 OBJ 材质、开启 BBMODEL 预加载后装饰不渲染，以及多项断线和脚本报错。
 
 ---
 
