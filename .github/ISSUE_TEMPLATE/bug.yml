@@ -1,4 +1,4 @@
-name: Bug 报告
+name: Bug 报告（中文）
 description: 游戏崩溃、无法启动或功能异常
 title: "[Bug] "
 labels: ["bug"]
@@ -7,8 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        请尽量填写完整，并上传完整日志。
-
+        请尽量填写完整，并上传完整日志。请勿只粘贴日志的最后几行。
   - type: input
     id: rte-version
     attributes:
@@ -16,7 +15,6 @@ body:
       placeholder: 1.0.0-beta.3
     validations:
       required: true
-
   - type: dropdown
     id: loader
     attributes:
@@ -26,7 +24,6 @@ body:
         - Forge
     validations:
       required: true
-
   - type: input
     id: loader-version
     attributes:
@@ -34,7 +31,6 @@ body:
       placeholder: Fabric Loader 0.16.9 / Forge 47.4.12
     validations:
       required: true
-
   - type: input
     id: minecraft-version
     attributes:
@@ -42,7 +38,6 @@ body:
       placeholder: 1.20.1
     validations:
       required: true
-
   - type: input
     id: mtr-version
     attributes:
@@ -50,7 +45,6 @@ body:
       placeholder: 4.0.5
     validations:
       required: true
-
   - type: input
     id: java-version
     attributes:
@@ -58,7 +52,6 @@ body:
       placeholder: 21.0.12
     validations:
       required: true
-
   - type: dropdown
     id: environment
     attributes:
@@ -69,18 +62,16 @@ body:
         - 专用服务端
     validations:
       required: true
-
   - type: textarea
     id: addons
     attributes:
       label: 同时安装的 MTR 附属
       description: 请列出 JCM、方速、S1MTR、MSD、NTE 等附属及版本。
       placeholder: |
-        JCM 2.2.3
+        JCM 2.2.4
         MSD 1.4.5
     validations:
       required: true
-
   - type: textarea
     id: steps
     attributes:
@@ -91,22 +82,19 @@ body:
         3. 出现问题
     validations:
       required: true
-
   - type: textarea
     id: expected
     attributes:
       label: 预期结果
     validations:
       required: true
-
   - type: textarea
     id: logs
     attributes:
       label: 完整日志
-      description: 请拖入 logs/latest.log；如果生成了 crash-reports，请一并上传。
+      description: 请拖入 logs/latest.log；如有 crash-reports，请一并上传。
     validations:
       required: true
-
   - type: checkboxes
     id: confirmation
     attributes:

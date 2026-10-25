@@ -1,0 +1,108 @@
+name: Bug Report (English)
+description: Report a crash, startup failure, or incorrect behavior
+title: "[Bug] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please complete the form and attach the full log. Do not paste only the last few lines.
+  - type: input
+    id: rte-version
+    attributes:
+      label: RTE version
+      placeholder: 1.0.0-beta.3
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod loader
+      options:
+        - Fabric
+        - Forge
+    validations:
+      required: true
+  - type: input
+    id: loader-version
+    attributes:
+      label: Mod loader version
+      placeholder: Fabric Loader 0.16.9 / Forge 47.4.12
+    validations:
+      required: true
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: Minecraft version
+      placeholder: 1.20.1
+    validations:
+      required: true
+  - type: input
+    id: mtr-version
+    attributes:
+      label: MTR version
+      placeholder: 4.0.5
+    validations:
+      required: true
+  - type: input
+    id: java-version
+    attributes:
+      label: Java version
+      placeholder: 21.0.12
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Singleplayer
+        - Multiplayer client
+        - Dedicated server
+    validations:
+      required: true
+  - type: textarea
+    id: addons
+    attributes:
+      label: Installed MTR addons
+      description: Include versions for JCM, FangSu, S1MTR, MSD, NTE, and other addons.
+      placeholder: |
+        JCM 2.2.4
+        MSD 1.4.5
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Enter a world
+        2. Perform the action
+        3. Observe the problem
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Full logs
+      description: Attach logs/latest.log and any generated crash report.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I am using the latest RTE release.
+          required: true
+        - label: I searched existing issues and found no duplicate.
+          required: true
+        - label: I tried reproducing the issue with only MTR and RTE installed.
+          required: false

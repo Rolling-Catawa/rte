@@ -10,7 +10,6 @@ body:
       label: RTE 版本
     validations:
       required: true
-
   - type: dropdown
     id: engine
     attributes:
@@ -21,14 +20,12 @@ body:
         - auto
     validations:
       required: true
-
   - type: input
     id: resource-pack
     attributes:
-      label: 资源包名称与版本
+      label: 资源包名称和版本
     validations:
       required: true
-
   - type: textarea
     id: script
     attributes:
@@ -36,7 +33,6 @@ body:
       render: javascript
     validations:
       required: false
-
   - type: textarea
     id: logs
     attributes:
