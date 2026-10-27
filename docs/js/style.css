@@ -75,3 +75,24 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
   nav.side .grp{width:100%;margin:14px 0 4px}
   main{padding:28px 20px 70px}
 }
+nav.side li a{position:relative;transition:background .12s,color .12s}
+nav.side li a.on::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--accent)}
+nav.side .brand:hover{color:var(--accent);text-decoration:none}
+main h2{scroll-margin-top:20px}
+.tw{border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.tw table{min-width:440px}
+.tw th,.tw td{padding:10px 16px}
+.tw th{background:var(--code-bg)}
+.tw tr:last-child td{border-bottom:none}
+.tw tbody tr:hover td,.tw tr:hover td{background:color-mix(in srgb,var(--accent-soft) 55%,transparent)}
+pre{border-radius:10px}
+.note,.warn{border-radius:10px}
+.pager a{display:block;flex:1;max-width:48%;border:1px solid var(--line);border-radius:10px;padding:12px 16px;
+  background:var(--card);color:var(--fg);transition:border-color .15s}
+.pager a:last-child{text-align:right}
+.pager a:hover{border-color:var(--accent);text-decoration:none}
+@media(max-width:880px){
+  nav.side li a.on::before{display:none}
+  nav.side li a{background:var(--card);border:1px solid var(--line);padding:4px 10px;font-size:13.5px}
+  .pager a{max-width:none}
+}

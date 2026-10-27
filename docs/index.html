@@ -7,63 +7,108 @@
 <meta name="description" content="面向 Minecraft Transit Railway 4.0 的轨道几何与建轨工具模组。">
 <style>
 :root{
-  --bg:#fbfbfa; --fg:#1a1a18; --muted:#6b6b66; --line:#e3e3df;
-  --card:#ffffff; --accent:#2f6f4e; --accent-soft:#eaf3ee; --code:#f4f4f1;
+  --bg:#f7f8f6; --fg:#171a17; --muted:#646a64; --line:#e1e4df;
+  --card:#ffffff; --accent:#2f6f4e; --accent-strong:#245a3f; --accent-soft:#e6f2eb; --code:#f1f3ef;
+  --shadow:0 1px 2px rgba(20,30,20,.05),0 6px 20px rgba(20,30,20,.06);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#141513; --fg:#e8e8e4; --muted:#9a9a93; --line:#2a2c28;
-    --card:#1b1d1a; --accent:#7fc0a0; --accent-soft:#1e2a24; --code:#1f211e;
+    --bg:#121412; --fg:#e8ebe6; --muted:#9aa19a; --line:#262a26;
+    --card:#191c19; --accent:#7fc0a0; --accent-strong:#95cfb2; --accent-soft:#1b2a22; --code:#1f231f;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#141513; --fg:#e8e8e4; --muted:#9a9a93; --line:#2a2c28;
-  --card:#1b1d1a; --accent:#7fc0a0; --accent-soft:#1e2a24; --code:#1f211e;
+  --bg:#121412; --fg:#e8ebe6; --muted:#9aa19a; --line:#262a26;
+  --card:#191c19; --accent:#7fc0a0; --accent-strong:#95cfb2; --accent-soft:#1b2a22; --code:#1f231f;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
   margin:0; background:var(--bg); color:var(--fg);
   font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:860px;margin:0 auto;padding:0 24px}
-header{padding:88px 0 56px;border-bottom:1px solid var(--line)}
-h1{font-size:clamp(30px,5.5vw,46px);line-height:1.15;margin:0 0 14px;letter-spacing:-.02em;font-weight:650}
-.tag{display:inline-block;font-size:13px;color:var(--accent);background:var(--accent-soft);
-  padding:4px 11px;border-radius:999px;margin-bottom:20px;font-weight:500}
-.lead{font-size:19px;color:var(--muted);margin:0 0 28px;max-width:62ch}
-.meta{font-size:14px;color:var(--muted);margin:0 0 28px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:20px;height:58px}
+.top .logo{font-weight:700;color:var(--fg);letter-spacing:-.01em}
+.top .logo span{color:var(--accent)}
+.top nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.top nav a{color:var(--muted);font-size:14.5px;padding:6px 11px;border-radius:7px;white-space:nowrap}
+.top nav a:hover{color:var(--fg);background:var(--card);text-decoration:none}
+header{padding:84px 0 72px;border-bottom:1px solid var(--line);
+  background:radial-gradient(900px 380px at 15% -10%,var(--accent-soft),transparent 70%)}
+h1{font-size:clamp(32px,6vw,52px);line-height:1.1;margin:0 0 18px;letter-spacing:-.025em;font-weight:700}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--accent);background:var(--accent-soft);
+  padding:5px 12px;border-radius:999px;margin-bottom:22px;font-weight:600}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.lead{font-size:clamp(17px,2.2vw,20px);color:var(--muted);margin:0 0 14px;max-width:60ch}
+.meta{font-size:14px;color:var(--muted);margin:0 0 30px}
 .btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn{display:inline-block;padding:10px 20px;border-radius:8px;text-decoration:none;
-  font-size:15px;font-weight:500;border:1px solid var(--line);color:var(--fg);background:var(--card)}
+.btn{display:inline-flex;align-items:center;padding:11px 20px;border-radius:9px;text-decoration:none;
+  font-size:15px;font-weight:550;border:1px solid var(--line);color:var(--fg);background:var(--card);
+  transition:border-color .15s,transform .15s}
+.btn:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-1px)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.btn:hover{border-color:var(--accent)}
-section{padding:56px 0;border-bottom:1px solid var(--line)}
-h2{font-size:13px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);
-  margin:0 0 28px;font-weight:600}
-h3{font-size:19px;margin:0 0 8px;font-weight:600}
-.grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.btn.primary:hover{background:var(--accent-strong)}
+section{padding:72px 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:0 0 8px;font-weight:700}
+h2{font-size:clamp(24px,3.4vw,30px);line-height:1.25;letter-spacing:-.015em;margin:0 0 30px;font-weight:680}
+h3{font-size:18px;margin:0 0 8px;font-weight:640}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 22px 20px;
+  transition:border-color .15s,box-shadow .15s,transform .15s}
+.item:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:var(--shadow);transform:translateY(-2px)}
 .item p{margin:0;color:var(--muted);font-size:15px}
+.item h3 a{color:var(--fg)}
+.new{display:inline-block;font-size:11.5px;font-weight:650;color:var(--accent);background:var(--accent-soft);
+  border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:3px}
+.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:0 0 30px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+.stat b{display:block;font-size:34px;line-height:1.1;letter-spacing:-.02em;color:var(--fg);font-weight:700;margin-bottom:6px}
+.stat span{color:var(--muted);font-size:14.5px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 22px}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:15px;min-width:420px}
-th,td{text-align:left;padding:10px 14px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
-code{background:var(--code);padding:2px 6px;border-radius:4px;font-size:.9em;
+th,td{text-align:left;padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th{color:var(--muted);font-weight:650;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em}
+code{background:var(--code);padding:2px 6px;border-radius:5px;font-size:.9em;
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);
-  border-radius:6px;padding:16px 20px;font-size:15px;color:var(--muted)}
+.note{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));
+  border-radius:12px;padding:16px 20px;font-size:15px;color:var(--muted);margin-top:16px}
 .note strong{color:var(--fg)}
 ul{padding-left:20px;margin:0}
-li{margin-bottom:7px;color:var(--muted);font-size:15px}
-li strong{color:var(--fg);font-weight:600}
-footer{padding:44px 0 64px;font-size:14px;color:var(--muted)}
+li{margin-bottom:8px;color:var(--muted);font-size:15.5px}
+li strong{color:var(--fg);font-weight:620}
+footer{padding:40px 0 60px;font-size:14px;color:var(--muted)}
+footer .wrap{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
 footer a{color:var(--muted)}
-a{color:var(--accent)}
-.stat{font-size:15px;color:var(--muted);margin:0}
-.stat b{color:var(--fg);font-weight:650;font-size:17px}
+@media(max-width:640px){
+  .top nav a.opt{display:none}
+  header{padding:56px 0 48px}
+  section{padding:52px 0}
+}
 </style>
 </head>
 <body>
+
+<div class="top"><div class="wrap">
+  <a class="logo" href="#">R<span>T</span>E</a>
+  <nav>
+    <a href="#features">功能</a>
+    <a href="#download">下载</a>
+    <a href="#docs" class="opt">文档</a>
+    <a href="wiki/index.html">Wiki</a>
+    <a href="js/index.html">JS 手册</a>
+    <a href="https://github.com/Rolling-Catawa/rte">GitHub</a>
+  </nav>
+</div></div>
 
 <header><div class="wrap">
   <div class="tag">1.0.0-beta.3 · Minecraft 1.20.1 / 1.20.4 · Fabric / Forge</div>
@@ -80,12 +125,12 @@ a{color:var(--accent)}
   </div>
 </div></header>
 
-<section><div class="wrap">
-  <h2>功能</h2>
+<section id="features"><div class="wrap">
+  <p class="eyebrow">功能</p><h2>把轨道当成工程对象来建</h2>
   <div class="grid">
-    <div class="item"><h3>自由节点</h3><p>节点可放在非整数坐标,支持 Y 轴位移和墙面吸附,用 Gizmo 拖动与旋转。</p></div>
-    <div class="item"><h3>轨道碰撞箱</h3><p>轨道生成可站立的碰撞箱,支持多列排布、中间留空,资源包脚本可自定义布局。</p></div>
-    <div class="item"><h3>列车重联与混编</h3><p>每个车组单独运行脚本,LCD 与车号按车组计算;车头相对的车组之间不画连接处。</p></div>
+    <div class="item"><h3>自由节点<span class="new">beta.3</span></h3><p>节点可放在非整数坐标,支持 Y 轴位移和墙面吸附,用 Gizmo 拖动与旋转。</p></div>
+    <div class="item"><h3>轨道碰撞箱<span class="new">beta.3</span></h3><p>轨道生成可站立的碰撞箱,支持多列排布、中间留空,资源包脚本可自定义布局。</p></div>
+    <div class="item"><h3>列车重联与混编<span class="new">beta.3</span></h3><p>每个车组单独运行脚本,LCD 与车号按车组计算;车头相对的车组之间不画连接处。</p></div>
     <div class="item"><h3>轨道几何</h3><p>四种路径模式:原生、自动贝塞尔、多点曲线拟合、手动贝塞尔。可设半径的竖曲线,坡度以千分比显示。</p></div>
     <div class="item"><h3>超高</h3><p>沿轨道分布的滚转角。车体、镜头与玩家站立平面同步倾斜 —— 坐进车厢能感觉到。</p></div>
     <div class="item"><h3>复合构建器</h3><p>画一次断面,沿线扫出整段隧道或桥梁。弯道自动跟随转向,超高段自动跟随滚转。</p></div>
@@ -96,11 +141,14 @@ a{color:var(--accent)}
   </div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>旧版资源包</h2>
-  <p class="lead" style="font-size:17px">MTR 3.x 时代的资源包在 4.0 下会损失不少功能。本模组补的是这个迁移期的断层。</p>
-  <p class="stat">在 <b>322</b> 个社区资源包上实测,加载报错从 <b>567</b> 条降到 <b>19</b> 条。</p>
-  <br>
+<section id="legacy"><div class="wrap">
+  <p class="eyebrow">旧版资源包</p><h2>补上 MTR 3.x 到 4.0 的断层</h2>
+  <p class="lead">MTR 3.x 时代的资源包在 4.0 下会损失不少功能。本模组补的是这个迁移期的断层。</p>
+  <div class="stats">
+    <div class="stat"><b>322</b><span>个社区资源包参与实测</span></div>
+    <div class="stat"><b>567 → 19</b><span>加载报错条数</span></div>
+    <div class="stat"><b>2</b><span>套 JS 引擎:Rhino 与 GraalJS</span></div>
+  </div>
   <ul>
     <li><strong>双 JS 引擎</strong> —— Rhino 与 GraalJS,资源包用 <code>engine</code> 字段指定</li>
     <li><strong>脚本退避</strong> —— 按函数独立退避,单个坏脚本不会每帧每车抛异常</li>
@@ -112,20 +160,19 @@ a{color:var(--accent)}
 </div></section>
 
 <section id="download"><div class="wrap">
-  <h2>下载与前置</h2>
-  <div class="tw"><table>
+  <p class="eyebrow">下载与前置</p><h2>安装需要的模组</h2>
+  <div class="panel tw"><table>
     <tr><th>模组</th><th>必需</th><th>版本</th></tr>
     <tr><td>Minecraft Transit Railway</td><td>是</td><td>4.0.0+</td></tr>
     <tr><td>Architectury API</td><td>是</td><td>9.2.14+</td></tr>
     <tr><td>Fabric API</td><td>Fabric 端必需</td><td>与 Minecraft 版本对应</td></tr>
     <tr><td>MSD</td><td>可选</td><td>装了才有接触网规划器</td></tr>
   </table></div>
-  <br>
   <div class="note"><strong>客户端必装,服务端可选。</strong> 服务端装了才有完整路径、全量轨道与列车位置同步;不装则自动退回原版 MTR 行为,不影响游玩。</div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>文档</h2>
+<section id="docs"><div class="wrap">
+  <p class="eyebrow">文档</p><h2>从上手到写脚本</h2>
   <div class="grid">
     <div class="item"><h3><a href="wiki/index.html">物品 Wiki</a></h3><p>4 件物品、3 种方块逐个说明用法，含轨道碰撞箱、键位命令与创造模式标签页。11 页。</p></div>
     <div class="item"><h3><a href="js/index.html">JS 脚本手册</a></h3><p>资源包脚本开发：生命周期、列车 API、动态贴图、轨道碰撞箱、沙箱、排错。15 页。</p></div>
@@ -134,8 +181,8 @@ a{color:var(--accent)}
   </div>
 </div></section>
 
-<section><div class="wrap">
-  <h2>已知问题</h2>
+<section id="issues"><div class="wrap">
+  <p class="eyebrow">已知问题</p><h2>目前还没解决的</h2>
   <ul>
     <li>部分老包车辆的车头/车尾镜像异常、车厢位置错位:当前版本复测未能复现,如仍遇到请提供车型与截图</li>
     <li><code>legacyVehicleTakeover</code> 为实验性功能,几何已验证但视觉表现未逐项确认</li>
