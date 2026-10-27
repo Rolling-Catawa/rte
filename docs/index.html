@@ -113,8 +113,8 @@ footer a{color:var(--muted)}
 <header><div class="wrap">
   <div class="tag">1.0.0-beta.3 · Minecraft 1.20.1 / 1.20.4 · Fabric / Forge</div>
   <h1>Rollingcats Transit Expansion</h1>
-  <p class="lead">面向 Minecraft Transit Railway 4.0 的轨道几何与建轨工具。把轨道当成可计算的工程对象 —— 曲线有半径,坡度有千分比,弯道有超高。</p>
-  <p class="meta">需要 MTR 4.0+ 与 Architectury API</p>
+  <p class="lead">MTR 4.0 的附属模组。可以精细调整轨道的弯道、坡度和超高，放置自由节点，让轨道可以站人，让列车重联运行，也能让很多旧版资源包在 MTR 4 下正常使用。</p>
+  <p class="meta">需要先安装 MTR 4.0 及以上版本和 Architectury API。</p>
   <div class="btns">
     <a class="btn primary" href="#download">下载</a>
     <a class="btn" href="wiki/index.html">物品 Wiki</a>
@@ -126,73 +126,72 @@ footer a{color:var(--muted)}
 </div></header>
 
 <section id="features"><div class="wrap">
-  <p class="eyebrow">功能</p><h2>把轨道当成工程对象来建</h2>
+  <h2>主要功能</h2>
   <div class="grid">
-    <div class="item"><h3>自由节点<span class="new">beta.3</span></h3><p>节点可放在非整数坐标,支持 Y 轴位移和墙面吸附,用 Gizmo 拖动与旋转。</p></div>
-    <div class="item"><h3>轨道碰撞箱<span class="new">beta.3</span></h3><p>轨道生成可站立的碰撞箱,支持多列排布、中间留空,资源包脚本可自定义布局。</p></div>
-    <div class="item"><h3>列车重联与混编<span class="new">beta.3</span></h3><p>每个车组单独运行脚本,LCD 与车号按车组计算;车头相对的车组之间不画连接处。</p></div>
-    <div class="item"><h3>轨道几何</h3><p>四种路径模式:原生、自动贝塞尔、多点曲线拟合、手动贝塞尔。可设半径的竖曲线,坡度以千分比显示。</p></div>
-    <div class="item"><h3>超高</h3><p>沿轨道分布的滚转角。车体、镜头与玩家站立平面同步倾斜 —— 坐进车厢能感觉到。</p></div>
-    <div class="item"><h3>复合构建器</h3><p>画一次断面,沿线扫出整段隧道或桥梁。弯道自动跟随转向,超高段自动跟随滚转。</p></div>
-    <div class="item"><h3>接触网规划器</h3><p>沿轨道自动布置支柱与导线,可调跨距、拉出值、高度、侧别,曲线自适应加密。</p></div>
-    <div class="item"><h3>旧版资源包兼容</h3><p>双 JS 引擎、时间基准换算、贴图与门洞适配。每一项都是独立开关,可逐项关闭定位问题。</p></div>
-    <div class="item"><h3>资源包工作台</h3><p>游戏内编辑车辆资源,递归 JSON 编辑器加模型预览,导出为 JSON 或自包含资源包。</p></div>
-    <div class="item"><h3>JavaScript 脚本</h3><p>Rhino 与 GraalJS 双运行时,脚本驱动列车显示、动态贴图、声音与粒子。<a href="js/index.html">查看手册</a></p></div>
+    <div class="item"><h3>自由节点<span class="new">beta.3</span></h3><p>节点可以放在方块之间的任意位置，也能贴在墙上、调整朝向，用拖拽手柄移动和旋转。</p></div>
+    <div class="item"><h3>轨道碰撞箱<span class="new">beta.3</span></h3><p>轨道上可以站人、走路。可以设成多列，中间留空。</p></div>
+    <div class="item"><h3>列车重联与混编<span class="new">beta.3</span></h3><p>两组车可以连成一列跑，不同车型也行。每组车的屏幕和车号各自显示正确。</p></div>
+    <div class="item"><h3>轨道线形</h3><p>弯道有多种画法，坡道可以设竖曲线，坡度用千分比显示。</p></div>
+    <div class="item"><h3>超高</h3><p>弯道可以向内倾斜，车体、视角和车上的玩家会一起倾斜。</p></div>
+    <div class="item"><h3>复合构建器</h3><p>画一次隧道或桥梁的截面，沿着轨道一次铺完。遇到弯道和超高会自动跟着转。</p></div>
+    <div class="item"><h3>接触网规划器</h3><p>沿轨道自动摆放接触网支柱和导线，间距、高度都能调。需要安装 MSD。</p></div>
+    <div class="item"><h3>旧版资源包兼容</h3><p>让很多 MTR 3 时代的车辆资源包在 MTR 4 下能用。每项兼容处理都能单独关掉。</p></div>
+    <div class="item"><h3>资源包工作台</h3><p>在游戏里查看和修改车辆资源，导出成资源包，可以连车辆音效一起导出。</p></div>
+    <div class="item"><h3>JavaScript 脚本</h3><p>资源包可以用脚本做车内屏幕、动态贴图、声音和粒子。<a href="js/index.html">查看手册</a></p></div>
   </div>
 </div></section>
 
 <section id="legacy"><div class="wrap">
-  <p class="eyebrow">旧版资源包</p><h2>补上 MTR 3.x 到 4.0 的断层</h2>
-  <p class="lead">MTR 3.x 时代的资源包在 4.0 下会损失不少功能。本模组补的是这个迁移期的断层。</p>
+  <h2>旧版资源包</h2>
+  <p class="lead">很多 MTR 3 时代的资源包直接放进 MTR 4 会报错或者少功能，RTE 做了一层兼容处理。</p>
   <div class="stats">
-    <div class="stat"><b>322</b><span>个社区资源包参与实测</span></div>
+    <div class="stat"><b>322</b><span>个社区资源包参与测试</span></div>
     <div class="stat"><b>567 → 19</b><span>加载报错条数</span></div>
-    <div class="stat"><b>2</b><span>套 JS 引擎:Rhino 与 GraalJS</span></div>
+    <div class="stat"><b>2</b><span>套脚本引擎可选</span></div>
   </div>
   <ul>
-    <li><strong>双 JS 引擎</strong> —— Rhino 与 GraalJS,资源包用 <code>engine</code> 字段指定</li>
-    <li><strong>脚本退避</strong> —— 按函数独立退避,单个坏脚本不会每帧每车抛异常</li>
-    <li><strong>时间基准换算</strong> —— 3.x 按 tick 与秒,4.0 全线以毫秒计,旧包推算的到站时间不再失真</li>
-    <li><strong>贴图匹配</strong> —— <code>default.png</code> 改为按文件名匹配</li>
-    <li><strong>门洞推导</strong> —— 按门位置推导 MTR 4 需要的 <code>DOORWAY</code> 部件</li>
-    <li><strong>贴图降采样</strong> —— 老包常见的 8K 贴图不再撑爆显存</li>
+    <li>两套脚本引擎（Rhino 和 GraalJS），资源包可以自己选</li>
+    <li>某个脚本出错时只暂停它自己，不会拖垮整个游戏</li>
+    <li>旧包按秒、按 tick 算的时间会自动换算，到站时间显示正确</li>
+    <li>贴图路径对不上时按文件名查找</li>
+    <li>自动补上 MTR 4 需要的车门开口</li>
+    <li>超大贴图自动缩小，减少显存占用</li>
   </ul>
 </div></section>
 
 <section id="download"><div class="wrap">
-  <p class="eyebrow">下载与前置</p><h2>安装需要的模组</h2>
+  <h2>下载与前置模组</h2>
   <div class="panel tw"><table>
-    <tr><th>模组</th><th>必需</th><th>版本</th></tr>
-    <tr><td>Minecraft Transit Railway</td><td>是</td><td>4.0.0+</td></tr>
-    <tr><td>Architectury API</td><td>是</td><td>9.2.14+</td></tr>
-    <tr><td>Fabric API</td><td>Fabric 端必需</td><td>与 Minecraft 版本对应</td></tr>
+    <tr><th>模组</th><th>是否必需</th><th>版本</th></tr>
+    <tr><td>Minecraft Transit Railway</td><td>必需</td><td>4.0.0 及以上</td></tr>
+    <tr><td>Architectury API</td><td>必需</td><td>9.2.14 及以上</td></tr>
+    <tr><td>Fabric API</td><td>Fabric 必需</td><td>和 Minecraft 版本对应即可</td></tr>
     <tr><td>MSD</td><td>可选</td><td>装了才有接触网规划器</td></tr>
   </table></div>
-  <div class="note"><strong>客户端必装,服务端可选。</strong> 服务端装了才有完整路径、全量轨道与列车位置同步;不装则自动退回原版 MTR 行为,不影响游玩。</div>
+  <div class="note"><strong>客户端必须安装，服务端可以不装。</strong>服务端装了以后，远处的轨道和列车位置也能同步过来；不装就和原版 MTR 一样，不影响游玩。</div>
 </div></section>
 
 <section id="docs"><div class="wrap">
-  <p class="eyebrow">文档</p><h2>从上手到写脚本</h2>
+  <h2>文档</h2>
   <div class="grid">
-    <div class="item"><h3><a href="wiki/index.html">物品 Wiki</a></h3><p>4 件物品、3 种方块逐个说明用法，含轨道碰撞箱、键位命令与创造模式标签页。11 页。</p></div>
-    <div class="item"><h3><a href="js/index.html">JS 脚本手册</a></h3><p>资源包脚本开发：生命周期、列车 API、动态贴图、轨道碰撞箱、沙箱、排错。15 页。</p></div>
-    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></h3><p>逐功能操作说明、配置项全表、已知问题。</p></div>
-    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/FEATURES.md">功能列表</a></h3><p>完整功能清单。</p></div>
+    <div class="item"><h3><a href="wiki/index.html">物品 Wiki</a></h3><p>每件物品、每种方块怎么用，还有键位和命令。</p></div>
+    <div class="item"><h3><a href="js/index.html">JS 脚本手册</a></h3><p>给资源包作者看的脚本写法和接口说明。</p></div>
+    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></h3><p>所有功能的操作说明和设置项。</p></div>
+    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/FEATURES.md">功能列表</a></h3><p>全部功能清单。</p></div>
   </div>
 </div></section>
 
 <section id="issues"><div class="wrap">
-  <p class="eyebrow">已知问题</p><h2>目前还没解决的</h2>
+  <h2>已知问题</h2>
   <ul>
-    <li>部分老包车辆的车头/车尾镜像异常、车厢位置错位:当前版本复测未能复现,如仍遇到请提供车型与截图</li>
-    <li><code>legacyVehicleTakeover</code> 为实验性功能,几何已验证但视觉表现未逐项确认</li>
+    <li>部分旧资源包的车辆可能出现车头车尾方向反了、车厢错位。当前版本没能复现，遇到的话请附上车型和截图反馈。</li>
+    <li>旧车渲染接管（<code>legacyVehicleTakeover</code>）还在实验阶段，默认关闭。</li>
   </ul>
-  <br>
-  <div class="note">遇到问题请开 <a href="https://github.com/Rolling-Catawa/rte/issues">Issue</a>,附上模组版本、加载器、MTR 版本、<code>logs/latest.log</code> 与用到的资源包。必要时先按 <code>O</code> 开启 <code>enableRenderDiagnostics</code> 复现一次。</div>
+  <div class="note">遇到问题请到 <a href="https://github.com/Rolling-Catawa/rte/issues">Issue</a> 反馈，附上 RTE 版本、用的是 Fabric 还是 Forge、MTR 版本，以及游戏目录下的 <code>logs/latest.log</code>。</div>
 </div></section>
 
 <footer><div class="wrap">
-  <p>Copyright © 2025 Rolling-Catawa · 保留所有权利<br>
+  <p>Copyright © 2026 Rolling-Catawa · 保留所有权利<br>
   <a href="https://github.com/Rolling-Catawa/rte/blob/main/THIRD-PARTY-NOTICES.md">第三方组件声明</a> · <a href="https://github.com/Rolling-Catawa/rte/blob/main/LICENSE.txt">许可</a></p>
 </div></footer>
 

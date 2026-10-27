@@ -131,7 +131,7 @@ RTE 的数据以附加字段形式挂载于 MTR 轨道序列化结构之上,不�
 
 **保留所有权利(All Rights Reserved)。** 见 [LICENSE.txt](LICENSE.txt)。
 
-Copyright (c) 2025 Rolling-Catawa
+Copyright (c) 2026 Rolling-Catawa
 
 未经作者书面许可,不得复制、修改、再分发本项目的源代码或构建产物,亦不得用于二次开发或商业用途。
 
