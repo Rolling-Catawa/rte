@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>列车 API · RTE 脚本手册</title>
-<meta name="description" content="第三个参数 train 上的全部方法。这是脚本能读到的列车状态的完整集合。">
+<meta name="description" content="第三个参数 train 上的全部方法。">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -39,7 +39,7 @@
 <main>
 <div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 列车 API</div>
 <h1>列车 API</h1>
-<p class="lede">第三个参数 train 上的全部方法。这是脚本能读到的列车状态的完整集合。</p>
+<p class="lede">第三个参数 <code>train</code> 上的全部方法。</p>
 <h2>速度</h2>
 <div class="tw"><table><tr><th>方法</th><th>返回</th><th>说明</th></tr><tr><td><code>speedKmh()</code></td><td>float</td><td><strong>km/h</strong>，等同 <code>speedKilometersPerHour()</code></td></tr><tr><td><code>speedKilometersPerHour()</code></td><td>float</td><td>km/h</td></tr><tr><td><code>speed()</code></td><td>float</td><td>米每刻</td></tr><tr><td><code>speedMetersPerMillisecond()</code></td><td>float</td><td>米每毫秒 —— MTR 4 内部单位</td></tr><tr><td><code>pathSpeedLimit()</code></td><td>float</td><td>当前路段限速</td></tr><tr><td><code>getRailSpeed(railIndex)</code></td><td>float</td><td>指定轨道段的限速</td></tr></table></div>
 <div class="warn">MTR 4 内部一律用<strong>毫秒</strong>。3.x 脚本按 tick 或秒写的速度计算，

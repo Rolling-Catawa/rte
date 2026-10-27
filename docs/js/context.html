@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>上下文与状态 · RTE 脚本手册</title>
-<meta name="description" content="state 是你的，ctx 是运行时的。搞清楚哪个存什么，能省掉一半的坑。">
+<meta name="description" content="state 用来存脚本自己的数据，ctx 是运行时提供的对象。本页说明两者分别存什么。">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -39,7 +39,7 @@
 <main>
 <div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 上下文与状态</div>
 <h1>上下文与状态</h1>
-<p class="lede">state 是你的，ctx 是运行时的。搞清楚哪个存什么，能省掉一半的坑。</p>
+<p class="lede"><code>state</code> 用来存脚本自己的数据，<code>ctx</code> 是运行时提供的对象。本页说明两者分别存什么。</p>
 <h2><code>state</code> —— 你的存储</h2>
 <p>每个车组一个独立对象（重联列车的每一组各有一份），跨帧保留，<code>create</code> 时为空。放任何你需要跨帧记住的东西：</p>
 <pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
