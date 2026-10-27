@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>轨道碰撞箱 · RTE 物品 Wiki</title>
+<meta name="description" content="让轨道生成真实、可站立的碰撞箱。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="free-node.html">自由节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="rail-collision.html" class="on">轨道碰撞箱</a></li>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 轨道碰撞箱</div>
+<h1>轨道碰撞箱</h1>
+<p class="lede">让轨道生成真实、可站立的碰撞箱。</p>
+<p>碰撞箱参与实体移动计算，不只是调试显示：玩家可以站在上面、沿着走，也可以从上方落到碰撞面上。
+服务端和客户端都要装 RTE，碰撞设置随轨道保存并同步。</p>
+<h2>设置方法</h2>
+<ol>
+<li>准星对准轨道按 <code>R</code>，或手持 MTR 轨道刷子 <code>Shift</code> + 右键节点，打开轨道编辑界面。</li>
+<li>勾选「应用轨道碰撞箱」，再勾选「启用碰撞箱」。</li>
+<li>调好参数，用刷子右键轨道应用。</li>
+<li>按 <code>F3+B</code> 可以看到碰撞箱线框。</li>
+</ol>
+<h2>参数</h2>
+<div class="tw"><table><tr><th>参数</th><th>说明</th></tr>
+<tr><td>宽度 / 高度 / 单段长度</td><td>单个碰撞箱的尺寸</td></tr>
+<tr><td>阵列间距</td><td>沿轨道方向相邻碰撞箱的采样距离，0.01～16 m。越小越平滑，计算量越大</td></tr>
+<tr><td>垂直偏移</td><td>相对轨道采样点的 Y 偏移</td></tr>
+<tr><td>横向偏移</td><td>整组碰撞箱相对轨道中心线的偏移</td></tr>
+<tr><td>多列横向偏移</td><td>英文逗号分隔的附加偏移。<code>0</code> 为单列，<code>-2,2</code> 为左右两列、中间留空</td></tr></table></div>
+<div class="note">每条轨道最多 32 列、8192 个碰撞箱，超出时自动放宽采样间距。反向轨道会自动镜像横向位置和自定义布局。</div>
+<h2>用脚本控制</h2>
+<p>资源包脚本可以通过 <code>RailCollision</code> 设置规则阵列，或逐个指定碰撞箱，见 JS 手册的<a href="../js/api-collision.html">轨道碰撞箱</a>。</p>
+<div class="pager"><a href="eye-candy.html">← 装饰物件</a><a href="keybinds.html">键位与命令 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

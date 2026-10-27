@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>轨道碰撞箱 · RTE JS 脚本手册</title>
+<meta name="description" content="用 RailCollision 设置轨道的可站立碰撞箱。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html" class="on">轨道碰撞箱</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 轨道碰撞箱</div>
+<h1>轨道碰撞箱</h1>
+<p class="lede">客户端脚本全局提供 <code>RailCollision</code>，用来设置轨道的可站立碰撞箱。</p>
+<p>参数可以传 <code>PathDataCompat</code>、<code>RailCompat</code> 或底层 <code>Rail</code>。
+修改会持久化并同步到服务端，相同的配置不会重复发包。游戏内的手动设置方法见 Wiki 的<a href="../wiki/rail-collision.html">轨道碰撞箱</a>。</p>
+<h2>设置规则阵列</h2>
+<pre><code>RailCollision.<span class="f">configure</span>(
+    pathData,
+    <span class="k">true</span>,
+    <span class="n">1.0</span>,
+    <span class="n">0.25</span>,
+    <span class="n">0.75</span>,
+    <span class="n">0.5</span>,
+    -<span class="n">0.25</span>,
+    <span class="n">0</span>,
+    <span class="s">"-2,2"</span>
+);
+</code></pre>
+<p>参数依次对应界面里的启用、宽度、高度、单段长度、阵列间距、垂直偏移、横向偏移、多列横向偏移。</p>
+<h2>只改多列排布</h2>
+<pre><code>RailCollision.<span class="f">setColumns</span>(pathData, <span class="s">"-2,2"</span>);
+pathData.rail.<span class="f">setCollisionColumns</span>(<span class="s">"-2,2"</span>);
+</code></pre>
+<h2>完全自定义排布</h2>
+<p>每个碰撞箱写成 <code>距离,横向偏移,Y偏移,宽度,高度,长度</code>，箱与箱之间用分号分隔。
+<code>RailCollision.box(...)</code> 按这个格式生成字符串：</p>
+<pre><code><span class="k">let</span> boxes = [];
+<span class="k">for</span> (<span class="k">let</span> d = <span class="n">0</span>; d &lt;= pathData.rail.<span class="f">getLength</span>(); d += <span class="n">0.5</span>) {
+    boxes.<span class="f">push</span>(RailCollision.<span class="f">box</span>(d, -<span class="n">2</span>, -<span class="n">0.25</span>, <span class="n">1</span>, <span class="n">0.25</span>, <span class="n">0.75</span>));
+    boxes.<span class="f">push</span>(RailCollision.<span class="f">box</span>(d,  <span class="n">2</span>, -<span class="n">0.25</span>, <span class="n">1</span>, <span class="n">0.25</span>, <span class="n">0.75</span>));
+}
+RailCollision.<span class="f">setLayout</span>(pathData, boxes.<span class="f">join</span>(<span class="s">";"</span>));
+</code></pre>
+<h2>恢复规则阵列</h2>
+<pre><code>RailCollision.<span class="f">clearLayout</span>(pathData);
+</code></pre>
+<div class="warn">碰撞配置属于世界数据，不适合做逐帧动画。只在配置确实变化时调用。</div>
+<div class="pager"><a href="api-client.html">← 客户端、声音、粒子</a><a href="compat.html">MTR 3.x 兼容与迁移 →</a></div>
+<footer>Copyright © 2025 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

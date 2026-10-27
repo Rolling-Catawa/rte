@@ -28,6 +28,7 @@
 <li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html">轨道碰撞箱</a></li>
 </ul>
 <div class="grp">进阶</div><ul>
 <li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
@@ -50,6 +51,8 @@
 调试开关都在配置界面里。现存的命令只有 <code>/rte repairrails</code> 与
 <code>/rte fixoneway</code>，都需要 OP 权限。</div>
 
+<h2>JS 调试面板</h2>
+<p>按 <code>O</code> 打开设置，开「显示 JS 调试信息」。屏幕左上角会列出所有正在运行的列车脚本：名称、类型和所用引擎，出错的脚本标红；脚本通过 <code>ctx.setDebugInfo(...)</code> 写入的数据也显示在这里。</p>
 <h2>脚本完全没反应</h2>
 <div class="tw"><table><tr><th>检查</th><th>做法</th></tr><tr><td>资源包启用了吗</td><td>在资源包界面确认已启用并排在正确位置</td></tr><tr><td>重载了吗</td><td>改完脚本按 <code>F7</code>，不必重启游戏</td></tr><tr><td>车辆 ID 对得上吗</td><td><code>custom_trains</code> 的键必须与实际车型 ID 一致</td></tr><tr><td>声明字段对吗</td><td>3.x 风格用 <code>script_files</code>，4 风格用 <code>vehicleScripts</code> 加 <code>scriptId</code></td></tr><tr><td>被别的包抢了吗</td><td>同一车辆 ID 只绑定一次，先加载的生效</td></tr><tr><td>JCM 装了吗</td><td>JCM 也有 JS 系统，可能接管了。看配置 <code>jcmJsChoice</code></td></tr></table></div>
 <p>日志里搜 <code>[ScriptedCustomTrains]</code> 能看到实际绑定了哪些车辆。</p>
@@ -57,6 +60,7 @@
 <h2>脚本跑一会儿就停了</h2>
 <p>这是<strong>失败退避</strong>在起作用。同一个函数连续抛异常会被暂停一段时间，
 防止坏脚本每帧每车抛异常拖垮整局。</p>
+<p>另一种情况是<strong>运行超时</strong>：Rhino 引擎下单次调用超过 3 秒会被中止，日志写出脚本文件与行号，该函数暂停 30 秒。日志里出现这类记录，多半是脚本里有死循环。见<a href="lifecycle.html">运行上限</a>。</p>
 <p>搜 <code>Error in RTE Resource Pack JavaScript</code> 看栈，修好后按 <code>F7</code> 恢复。</p>
 
 <h2>报「类不可访问」</h2>
@@ -71,7 +75,7 @@
 
 <h2>内存持续上涨</h2>
 <div class="tw"><table><tr><th>原因</th><th>解法</th></tr><tr><td><code>GraphicsTexture</code> 没关</td><td>在 <code>dispose</code> 里 <code>close()</code>；用 <code>liveCount()</code> 盯数量</td></tr><tr><td><code>state</code> 里无限追加</td><td>数组、Map 要设上限或定期清理</td></tr><tr><td>每帧新建大对象</td><td>复用 <code>BufferedImage</code>，别每帧 new</td></tr><tr><td>贴图过大</td><td>客户端配置 <code>maxTextureSize</code> 可限制上限</td></tr></table></div>
-<div class="warn"><code>state</code> 是每辆车一份的。
+<div class="warn"><code>state</code> 是每个车组一份的。
 往里塞的东西乘以在线车辆数，才是真实内存占用。</div>
 
 <h2>报站重复播放</h2>

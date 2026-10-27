@@ -28,6 +28,7 @@
 <li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html">轨道碰撞箱</a></li>
 </ul>
 <div class="grp">进阶</div><ul>
 <li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
@@ -40,7 +41,7 @@
 <h1>上下文与状态</h1>
 <p class="lede">state 是你的，ctx 是运行时的。搞清楚哪个存什么，能省掉一半的坑。</p>
 <h2><code>state</code> —— 你的存储</h2>
-<p>每辆车一个独立对象，跨帧保留，<code>create</code> 时为空。放任何你需要跨帧记住的东西：</p>
+<p>每个车组一个独立对象（重联列车的每一组各有一份），跨帧保留，<code>create</code> 时为空。放任何你需要跨帧记住的东西：</p>
 <pre><code><span class="k">function</span> <span class="f">create</span>(ctx, state, train) {
   state.scrollX     = <span class="n">0</span>;
   state.lastStation = <span class="k">null</span>;

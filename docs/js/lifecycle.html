@@ -28,6 +28,7 @@
 <li><a href="api-interaction.html">交互与 use 回调</a></li>
 <li><a href="api-resource.html">资源与字体</a></li>
 <li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html">轨道碰撞箱</a></li>
 </ul>
 <div class="grp">进阶</div><ul>
 <li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
@@ -96,6 +97,9 @@ MinecraftClient.<span class="f">recordRenderCall</span>(<span class="k">function
 避免坏脚本每帧每车抛异常拖垮整局游戏。</p>
 <p>日志里搜 <code>Error in RTE Resource Pack JavaScript</code> 可看到栈。
 修好后按 <code>F7</code> 重载即可恢复。</p>
+<h2>运行上限</h2>
+<div class="tw"><table><tr><th>情况</th><th>处理</th></tr><tr><td>Rhino 引擎下单次调用超过 3 秒（如死循环）</td><td>立即中止，日志写出脚本文件与行号，该函数暂停 30 秒</td></tr><tr><td>单次调用创建超过 512 张 <code>GraphicsTexture</code></td><td>立即中止，避免贴图失控占满内存</td></tr></table></div>
+<p>两种情况都不会拖垮整个游戏，其他列车照常运行。</p>
 
 <h2>重载</h2>
 <p>按 <code>F7</code> 重载 RTE 客户端资源。脚本会被关闭并重新加载，
