@@ -224,6 +224,69 @@ RailCollision.clearLayout(pathData);
 
 ---
 
+## 资源包脚本轨道
+
+*1.0.0-beta.5 起提供。*
+
+资源包里的轨道样式可以挂 JS 脚本，用脚本画沿轨道摆放、会动的模型，比如闪烁的信号灯带、转动的风车、随时间变化的装饰。写在 `assets/<命名空间>/rails/` 下的 json 里：
+
+```json
+{
+    "mypack_lamp_rail": {
+        "name": "灯带轨道",
+        "group": "我的轨道",
+        "model": "mypack:models/sleeper.obj",
+        "repeatInterval": 1,
+        "scriptFiles": ["mypack:scripts/lamp_rail.js"]
+    }
+}
+```
+
+`model` 可以不写，只用脚本画；写了的话静态模型照常按 `repeatInterval` 铺，脚本画的东西叠在上面。每一段用了这个样式的轨道各自运行一份脚本，`state` 互不影响。
+
+脚本可以定义 `create(ctx, state, rail)`、`render(ctx, state, rail)`、`dispose(ctx, state, rail)`，也可以写成 `createRail` / `renderRail` / `disposeRail`。
+
+```js
+var raw = ModelManager.loadRawModel(Resources.manager(), Resources.idr("mypack:models/lamp.obj"), null);
+var lamp = ModelManager.uploadVertArrays(raw);
+
+function render(ctx, state, rail) {
+  var on = Math.floor(Date.now() / 500) % 2 == 0;
+  if (!on) {
+    return;
+  }
+  for (var d = 0; d <= rail.getLength(); d += 4) {
+    var m = new Matrices();
+    m.translate(1.2, 0, 0);
+    ctx.drawModelAt(lamp, d, m);
+  }
+}
+```
+
+`ctx` 的方法：
+
+| 方法 | 说明 |
+|---|---|
+| `drawModelAt(model, 距离, matrices)` | 画在轨道上距起点这么远的地方，自动对齐轨道的朝向、坡度和超高；`matrices` 是在这个位置上的再变换，可以传 `null` |
+| `drawModel(model, matrices)` | 以轨道起点为原点直接画，不跟随轨道朝向 |
+| `playSoundAt(声音, 距离, 音量, 音调)` | 在轨道上某处播放声音 |
+| `playSound(声音, 音量, 音调)` | 在轨道中点播放声音 |
+
+`rail` 的方法：
+
+| 方法 | 说明 |
+|---|---|
+| `getLength()` | 轨道长度，单位为格 |
+| `getPose(距离)` | 轨道上某处的位姿，返回 `Matrices`，可以继续变换后交给 `drawModel` |
+| `getPosition(距离)` | 某处相对轨道起点的坐标 |
+| `getWorldPosition(距离)` / `getOrigin()` | 某处 / 起点的世界坐标 |
+| `getRollAngle(距离)` | 某处的超高角（弧度） |
+| `getId()` / `getModelKey()` / `isReversed()` / `getYOffset()` | 轨道 id、样式名、是否反向铺设、样式的高度偏移 |
+
+脚本画的每个模型按它所在的位置单独取光照。轨道离开渲染距离、被拆掉或按 `F7` 重载资源时，这份脚本会调用 `dispose` 后释放；轨道重新进入渲染距离时会重新 `create`，`state` 从头开始。
+
+---
+
 ## 轨道脚本与机构
 
 把几段轨道编成一组，再挂上一个服务端 JS 脚本，这组轨道就成了一个「机构」：转车台、移车台、开合桥都可以这样做。脚本决定什么时候转、转到哪里；列车开到没有对准的机构前会停下等待。

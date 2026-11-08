@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>脚本轨道 · RTE JS 脚本手册</title>
+<meta name="description" content="用 JS 脚本沿轨道绘制会动的模型。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html">轨道碰撞箱</a></li>
+<li><a href="api-rail.html" class="on">脚本轨道</a></li>
+<li><a href="api-mechanism.html">轨道机构</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 脚本轨道</div>
+<h1>脚本轨道</h1>
+<p class="lede">资源包里的轨道样式可以挂 JS 脚本，沿每段轨道画会动的模型。</p>
+<div class="note">RTE 1.0.0-beta.5 起提供。</div>
+<h2>声明</h2>
+<p>写在 <code>assets/&lt;命名空间&gt;/rails/</code> 下的 json 里，用 <code>scriptFiles</code> 列出脚本：</p>
+<pre><code>{
+    <span class="s">"mypack_lamp_rail"</span>: {
+        <span class="s">"name"</span>: <span class="s">"灯带轨道"</span>,
+        <span class="s">"group"</span>: <span class="s">"我的轨道"</span>,
+        <span class="s">"model"</span>: <span class="s">"mypack:models/sleeper.obj"</span>,
+        <span class="s">"repeatInterval"</span>: <span class="n">1</span>,
+        <span class="s">"scriptFiles"</span>: [<span class="s">"mypack:scripts/lamp_rail.js"</span>]
+    }
+}
+</code></pre>
+<p><code>model</code> 可以不写，只用脚本画；写了的话静态模型照常按 <code>repeatInterval</code> 铺，脚本画的东西叠在上面。
+每一段用了这个样式的轨道各自运行一份脚本，<code>state</code> 互不影响。</p>
+<h2>入口函数</h2>
+<p>可以定义 <code>create(ctx, state, rail)</code>、<code>render(ctx, state, rail)</code>、<code>dispose(ctx, state, rail)</code>，
+也可以写成 <code>createRail</code> / <code>renderRail</code> / <code>disposeRail</code>。</p>
+<pre><code><span class="k">var</span> raw = ModelManager.<span class="f">loadRawModel</span>(Resources.<span class="f">manager</span>(), Resources.<span class="f">idr</span>(<span class="s">"mypack:models/lamp.obj"</span>), <span class="k">null</span>);
+<span class="k">var</span> lamp = ModelManager.<span class="f">uploadVertArrays</span>(raw);
+
+<span class="k">function</span> <span class="f">render</span>(ctx, state, rail) {
+  <span class="k">var</span> on = Math.<span class="f">floor</span>(Date.<span class="f">now</span>() / <span class="n">500</span>) % <span class="n">2</span> == <span class="n">0</span>;
+  <span class="k">if</span> (!on) {
+    <span class="k">return</span>;
+  }
+  <span class="k">for</span> (<span class="k">var</span> d = <span class="n">0</span>; d &lt;= rail.<span class="f">getLength</span>(); d += <span class="n">4</span>) {
+    <span class="k">var</span> m = <span class="k">new</span> Matrices();
+    m.<span class="f">translate</span>(<span class="n">1.2</span>, <span class="n">0</span>, <span class="n">0</span>);
+    ctx.<span class="f">drawModelAt</span>(lamp, d, m);
+  }
+}
+</code></pre>
+<h2>ctx</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr>
+<tr><td><code>drawModelAt(model, 距离, matrices)</code></td><td>画在轨道上距起点这么远的地方，自动对齐轨道的朝向、坡度和超高；<code>matrices</code> 是在这个位置上的再变换，可以传 <code>null</code></td></tr>
+<tr><td><code>drawModel(model, matrices)</code></td><td>以轨道起点为原点直接画，不跟随轨道朝向</td></tr>
+<tr><td><code>playSoundAt(声音, 距离, 音量, 音调)</code></td><td>在轨道上某处播放声音</td></tr>
+<tr><td><code>playSound(声音, 音量, 音调)</code></td><td>在轨道中点播放声音</td></tr>
+</table></div>
+<h2>rail</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr>
+<tr><td><code>getLength()</code></td><td>轨道长度，单位为格</td></tr>
+<tr><td><code>getPose(距离)</code></td><td>轨道上某处的位姿，返回 <code>Matrices</code>，可以继续变换后交给 <code>drawModel</code></td></tr>
+<tr><td><code>getPosition(距离)</code></td><td>某处相对轨道起点的坐标</td></tr>
+<tr><td><code>getWorldPosition(距离)</code> / <code>getOrigin()</code></td><td>某处 / 起点的世界坐标</td></tr>
+<tr><td><code>getRollAngle(距离)</code></td><td>某处的超高角（弧度）</td></tr>
+<tr><td><code>getId()</code> / <code>getModelKey()</code> / <code>isReversed()</code> / <code>getYOffset()</code></td><td>轨道 id、样式名、是否反向铺设、样式的高度偏移</td></tr>
+</table></div>
+<p>脚本画的每个模型按它所在的位置单独取光照。轨道离开渲染距离、被拆掉或按 <code>F7</code> 重载资源时，这份脚本会调用 <code>dispose</code> 后释放；
+重新进入渲染距离时会重新 <code>create</code>，<code>state</code> 从头开始。</p>
+<div class="pager"><a href="api-collision.html">← 轨道碰撞箱</a><a href="api-mechanism.html">轨道机构 →</a></div>
+<footer>Copyright © 2026 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>

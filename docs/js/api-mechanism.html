@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>轨道机构 · RTE JS 脚本手册</title>
+<meta name="description" content="用服务端 JS 脚本驱动转车台、移车台与开合桥。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">JavaScript 脚本手册</div>
+<div class="grp">起步</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="quickstart.html">第一个脚本</a></li>
+<li><a href="declare.html">在资源包中声明</a></li>
+</ul>
+<div class="grp">核心</div><ul>
+<li><a href="lifecycle.html">生命周期与线程</a></li>
+<li><a href="context.html">上下文与状态</a></li>
+</ul>
+<div class="grp">API</div><ul>
+<li><a href="api-train.html">列车 API</a></li>
+<li><a href="api-draw.html">绘制 API</a></li>
+<li><a href="api-graphics.html">动态贴图与 LCD</a></li>
+<li><a href="api-interaction.html">交互与 use 回调</a></li>
+<li><a href="api-resource.html">资源与字体</a></li>
+<li><a href="api-client.html">客户端、声音、粒子</a></li>
+<li><a href="api-collision.html">轨道碰撞箱</a></li>
+<li><a href="api-rail.html">脚本轨道</a></li>
+<li><a href="api-mechanism.html" class="on">轨道机构</a></li>
+</ul>
+<div class="grp">进阶</div><ul>
+<li><a href="compat.html">MTR 3.x 兼容与迁移</a></li>
+<li><a href="security.html">沙箱与可用类</a></li>
+<li><a href="troubleshoot.html">排错与性能</a></li>
+</ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">JS 脚本手册</a> / 轨道机构</div>
+<h1>轨道机构</h1>
+<p class="lede">把几段轨道编成一组，挂上服务端 JS 脚本，做成转车台、移车台、开合桥。</p>
+<div class="note">RTE 1.0.0-beta.4 起提供。服务端也要安装 RTE。</div>
+<h2>搭建</h2>
+<ol>
+<li>先铺好机构上的每一段轨道：转车台就是桥面那一段加上各股道的接口段，开合桥就是桥面那一段。</li>
+<li>对着其中一段按 <code>R</code> 打开轨道编辑界面，展开“轨道脚本”。</li>
+<li>“分组”填一个名字，“脚本”选一个脚本，点“应用到此轨道”。同组的每一段都这样做，分组名要完全一样。</li>
+</ol>
+<p>列车开到没有对准的机构前会停下等待。</p>
+<h2>脚本文件</h2>
+<p>存在服务器的 <code>config/rte/rail_scripts/</code> 下，每个 id 对应 <code>&lt;id&gt;.json</code>（名称与引擎）、<code>&lt;id&gt;.server.js</code>（必需）、<code>&lt;id&gt;.client.js</code>（可选，画外观）。
+第一次运行时会放入 <code>turntable</code> 与 <code>drawbridge</code> 两个示例。保存脚本需要 OP 或单人游戏房主；给轨道分组需要 OP，或创造模式且就在轨道附近。</p>
+<h2>服务端入口函数</h2>
+<div class="tw"><table><tr><th>函数</th><th>什么时候调用</th></tr>
+<tr><td><code>create(ctx, state, mech)</code></td><td>机构建立或脚本重新加载</td></tr>
+<tr><td><code>tick(ctx, state, mech)</code></td><td>大约每 tick 一次</td></tr>
+<tr><td><code>onTrainApproach(ctx, state, mech, e)</code></td><td>列车开近，默认 300 格内；<code>e.requiredRail</code> 是它要走的那段轨道</td></tr>
+<tr><td><code>onTrainEnter</code> / <code>onTrainLeave</code> / <code>onTrainStop</code></td><td>列车驶上、驶离、停在机构上</td></tr>
+<tr><td><code>onRedstone(ctx, state, mech, e)</code></td><td>机构轨道两端节点方块的红石信号变化，<code>e.oldPower</code> → <code>e.newPower</code></td></tr>
+<tr><td><code>onUse(ctx, state, mech, e)</code></td><td>玩家空手右键机构轨道的节点方块</td></tr>
+<tr><td><code>onMessage(ctx, state, mech, e)</code></td><td>收到列车或别的机构的消息，或 <code>ctx.after</code> 定时到点</td></tr>
+<tr><td><code>onAligned(ctx, state, mech, e)</code></td><td>机构转到位</td></tr>
+<tr><td><code>dispose(ctx, state, mech)</code></td><td>机构被拆掉或脚本卸载</td></tr>
+</table></div>
+<h2>mech</h2>
+<div class="tw"><table><tr><th>方法</th><th>说明</th></tr>
+<tr><td><code>candidates()</code></td><td>组内所有轨道，每项有 <code>id</code>、两端坐标和 <code>yaw</code></td></tr>
+<tr><td><code>activeRail()</code> / <code>targetRail()</code></td><td>当前对准的轨道 / 正在转向的轨道</td></tr>
+<tr><td><code>rotateTo(id, 度每秒)</code></td><td>转到对准某段轨道，返回 <code>"ok"</code>；有车正在通过时返回 <code>"train_crossing"</code></td></tr>
+<tr><td><code>animateTo(...)</code> / <code>animateAround(...)</code></td><td>以桥面中心 / 指定点为轴转动、平移，开合桥用后者</td></tr>
+<tr><td><code>isMoving()</code> / <code>isAligned()</code> / <code>state()</code></td><td>是否在动、是否对准</td></tr>
+<tr><td><code>lock()</code> / <code>unlock()</code></td><td>锁定后列车不能通过</td></tr>
+<tr><td><code>holdRed()</code> / <code>releaseSignals()</code></td><td>组内轨道信号保持红灯 / 恢复</td></tr>
+<tr><td><code>rails()</code></td><td>逐段限速、保持红灯、改碰撞布局</td></tr>
+<tr><td><code>setRedstoneOutput(x, y, z, 强度)</code></td><td>让节点方块输出红石信号</td></tr>
+<tr><td><code>send(列车id, 文本)</code> / <code>sendToMechanism(分组, 文本)</code></td><td>给列车脚本或别的机构发消息</td></tr>
+</table></div>
+<p>列车脚本里可以用 <code>train.railScriptsAhead(距离)</code>、<code>train.sendToMechanism(分组, 文本)</code>、<code>train.pollMechanismMessages()</code> 和机构通信。
+命令 <code>/rte railscripts reload</code> 重新加载全部脚本，<code>/rte railscripts list</code> 列出机构状态。</p>
+<div class="pager"><a href="api-rail.html">← 脚本轨道</a><a href="compat.html">MTR 3.x 兼容与迁移 →</a></div>
+<footer>Copyright © 2026 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>
