@@ -5,6 +5,40 @@ Release notes for Rollingcats Transit Expansion.
 
 ---
 
+## 1.0.0-beta.4
+
+### English
+
+- Vehicle lights: headlights with soft volumetric beams that light up the track and ground per pixel, plus tail lights. Lamp positions are read from the vehicle model (MTR 4 packs, MTR 3 JSON packs and scripted trains). Works with Iris shader packs. Packs can define their own lights in `rte_vehicle_lights.json`.
+- Rail scripts and mechanisms: group rails in the rail editor and attach a JavaScript file to build turntables, transfer tables and drawbridges. Scripts react to approaching trains, redstone and right clicks, can move and rotate rails, hold signals at red, set speed limits and talk to train scripts. Trains wait until the mechanism lines up. Turntable and drawbridge examples are included.
+- Road markings: 11 kinds of lane lines, stop lines and crosswalks applied as rail models.
+- Train exterior collision (off by default): stand and walk on train roofs, car bodies block players, open doors let you board.
+- Immersive Vehicles (1.20.1) cars collide with rail collision boxes.
+- `/rte rails check` and `/rte rails clean` find and remove rails whose ends have no node block.
+- Rail models, vertical curves, roll and other rail settings from NTE and ANTE worlds carry over when the world is opened with RTE.
+- Fixed legacy OBJ door leaves being offset twice and mirrored doors opening the wrong way.
+- Fixed legacy car filters in mixed formations, reversed tail cabs and missing gangways in some legacy packs.
+- Fixed the LCD next station in manual driving, script displays flickering or drifting on curves, and displays lagging behind moving trains with shader packs.
+- Fixed trains and rails turning black where they pass through solid blocks, and rail editor checkboxes not working without a brush in hand.
+- Rail edits from non-operators are now limited to 128 blocks from the player and to places the player can build.
+
+### 中文
+
+- 新增车辆灯光：车头灯带柔和的体积光束，逐像素照亮轨道与地面；另有尾灯。灯的位置从车辆模型里读取，支持 MTR 4 资源包、MTR 3 的 JSON 资源包和脚本列车。兼容 Iris 光影。资源包可在 `rte_vehicle_lights.json` 里自定义灯光。
+- 新增轨道脚本与机构：在轨道编辑界面把几段轨道编成一组并挂上 JS 脚本，就能做转车台、移车台、开合桥。脚本可以响应列车接近、红石和右键，转动或平移轨道，把信号保持红灯，限速，并和列车脚本互发消息。机构没对准时列车会停下等待。自带转车台与开合桥示例。
+- 新增公路标线：11 种车道线、停止线与人行横道，以轨道模型的形式铺设。
+- 新增列车外部碰撞箱（默认关闭）：车顶可以站人行走，车身挡住玩家，开门时可以上车。
+- 沉浸式车辆（1.20.1）的车可以开上轨道碰撞箱。
+- 新增 `/rte rails check` 与 `/rte rails clean`，查找并清除端点处没有节点方块的悬空轨道。
+- 用 RTE 打开 NTE / ANTE 存档时，保留原来的轨道模型、竖曲线、超高等轨道设置。
+- 修复旧版 OBJ 车门叶片偏移两次、镜像车门开反方向。
+- 修复混编列车的旧版车型筛选、部分旧包尾车车头朝反、连接处缺失。
+- 修复手动驾驶时 LCD 下一站不更新、脚本显示闪烁与曲线错位，以及开光影时显示屏落后于行驶中的列车。
+- 修复列车和轨道穿过实心方块处发黑，以及不手持刷子时轨道编辑界面的复选框失效。
+- 非 OP 玩家的轨道编辑限制在自身 128 格内、且自己有建造权限的位置。
+
+---
+
 ## 1.0.0-beta.3
 
 ### English

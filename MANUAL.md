@@ -37,6 +37,9 @@ Rollingcats Transit Expansion（modId `rte`）—— MTR 4.0.x 的轨道几何�
 |---|---|
 | `/rte repairrails` | 扫描并修复整个世界里损坏的轨道数据。需要 OP（权限等级 2）。 |
 | `/rte fixoneway` | 修正单向轨的方向数据。需要 OP（权限等级 2）。 |
+| `/rte rails check` | 列出端点处没有节点方块的悬空轨道（最多显示 10 条）和总数。需要 OP。 |
+| `/rte rails clean` | 清除全部悬空轨道。需要 OP。 |
+| `/rte railscripts reload` / `list` | 重新加载轨道脚本 / 列出脚本与机构状态，见「轨道脚本与机构」。需要 OP。 |
 
 **调试没有命令入口。** 按 `O` 打开设置；“显示 JS 调试信息”会把脚本通过 `ctx.setDebugInfo(...)` 写入的数据显示在左上角，“渲染诊断”会把脚本执行、渲染阶段和模型诊断写入 `logs/latest.log`；
 服务端诊断改存档目录下 `rte_config.json` 的 `enableNetworkDiagnostics`。
@@ -81,6 +84,8 @@ Rollingcats Transit Expansion（modId `rte`）—— MTR 4.0.x 的轨道几何�
 | 多列横向偏移 | 以英文逗号分隔的附加横向偏移；`0` 为单列，`-2,2` 为左右两列且中间留空 |
 
 多列偏移会叠加在「横向偏移」上。每条轨道最多 32 列、8192 个碰撞箱；超过上限时会自动降低纵向采样密度。反向轨道会自动镜像横向位置和自定义布局。
+
+装了沉浸式车辆（Immersive Vehicles，1.20.1）时，它的车也会被轨道碰撞箱挡住，车轮可以开到碰撞面上。碰撞箱对它来说和基岩一样，撞不碎，高速撞上会按它自己的规则算撞车。列车外部碰撞箱目前不支持沉浸式车辆。
 
 #### JS 控制碰撞箱
 
@@ -171,6 +176,158 @@ RailCollision.clearLayout(pathData);
 - **操作说明** —— 可折叠，展开看画布的鼠标操作
 
 画布操作：左键绘制/拖拽，右键拖动平移，滚轮缩放。
+
+### 公路标线
+
+公路标线是一种轨道样式。用刷子打开轨道编辑界面，在轨道类型里找到「公路标线」分组，选一种即可。选了标线的轨道不再显示铁轨，只在地面上画线；手持轨道工具或刷子时会照常显示轨道，方便选中和修改。
+
+内置样式：
+
+| 样式 | 线宽 | 线段 + 间隔 |
+| --- | --- | --- |
+| 白色虚线 | 0.15 m | 2 m + 4 m |
+| 白色虚线（长） | 0.15 m | 6 m + 9 m |
+| 白色实线 / 黄色单实线 | 0.15 m | 实线 |
+| 白色边缘线 | 0.2 m | 实线 |
+| 白色双实线 / 黄色双实线 | 2 × 0.15 m，间隔 0.15 m | 实线 |
+| 黄色虚线 | 0.15 m | 4 m + 6 m |
+| 黄色虚实线 | 2 × 0.15 m | 一侧实线，一侧 4 m + 6 m |
+| 停止线 | 0.4 m | 实线 |
+| 人行横道 | 4 m 宽的条纹 | 0.45 m + 0.6 m |
+
+画法：
+
+- 线段长度和线宽是固定的，轨道长短、弯道都不会拉伸它们。一段轨道上放得下几段就画几段，整体居中，放不下完整一段的余量平均留在两端。
+- 标线贴在轨道下方方块的顶面上，跟着台阶、半砖、地形起伏走。每格单独找地面：从轨道高度往下最多找 4 格，草、花这类没有碰撞的方块会被跳过，下面没有方块的地方不画。
+- 遇到台阶边缘，标线会顺着方块的侧面往下延伸，接到下一格的地面上，看起来像刷上去的漆。悬空、栅栏这类侧面不完整的地方不往下延伸。
+- 改了地面方块后，附近的标线会自动重新贴合。
+- 黄色虚实线哪边是实线跟轨道方向有关。想换边，在刷子界面勾选「镜像轨道方向」即可。
+- 人行横道沿行人走的方向铺轨道。
+- 一段轨道可以同时选模型和标线，比如铁轨加旁边的边缘线。
+
+资源包可以自己定义标线样式。在 `assets/<命名空间>/rails/` 下的 json 里写 `roadMarking` 字段，不写 `model`：
+
+```json
+{
+    "mypack_bus_lane": {
+        "name": "公交专用道",
+        "group": "我的标线",
+        "roadMarking": [
+            { "offset": -0.1, "width": 0.2, "color": "#F2B705" },
+            { "offset": 0.1, "width": 0.2, "dash": 4, "gap": 4, "color": "#F2B705" }
+        ]
+    }
+}
+```
+
+每一项是一条线：`offset` 是相对轨道中心的横向偏移，`width` 是线宽，`dash` 和 `gap` 是线段和间隔长度（不写就是实线），`color` 是 `#RRGGBB` 或 `#AARRGGBB`。单位都是米（格）。
+
+---
+
+## 轨道脚本与机构
+
+把几段轨道编成一组，再挂上一个服务端 JS 脚本，这组轨道就成了一个「机构」：转车台、移车台、开合桥都可以这样做。脚本决定什么时候转、转到哪里；列车开到没有对准的机构前会停下等待。
+
+### 搭建
+
+1. 先用 MTR 的方式铺好机构上的每一条轨道。转车台就是桥面那一段加上周围每个股道的接口段；开合桥就是桥面那一段。
+2. 对着其中一段按 `R` 打开轨道编辑界面，展开「轨道脚本」。
+3. 「分组」填一个名字，比如 `depot_turntable`，「脚本」选一个脚本，点「应用到此轨道」。
+4. 对同组的每一段轨道重复第 3 步，分组名要完全一样。点「移出分组」可以把轨道从机构里拿出来。
+
+同一组里的轨道都是这个机构的「候选位置」。机构建立时对准组里的第一段（按轨道 id 排序），桥面也是这一段；可以在脚本里用 `mech.setActive(id)` 改成别的段（机构上有车时不生效）。
+
+### 编写脚本
+
+在「轨道脚本」里点「编辑脚本」打开编辑器，填一个新 id（小写字母、数字、下划线，最长 64 个字符）点「新建」，会以转车台示例为模板。写完点「保存」，服务器立刻重新加载。
+
+脚本存在服务器的 `config/rte/rail_scripts/` 下，每个 id 对应三个文件：
+
+| 文件 | 说明 |
+|---|---|
+| `<id>.json` | 名称与引擎，例如 `{ "name": "Drawbridge", "engine": "auto" }` |
+| `<id>.server.js` | 服务端逻辑，必需 |
+| `<id>.client.js` | 客户端外观，可选 |
+
+第一次运行时这个文件夹里会放入两个示例：`turntable`（转车台 / 移车台）和 `drawbridge`（开合桥）。
+
+权限：保存脚本需要 OP，单人游戏的房主也可以。给轨道分组需要 OP，或者处于创造模式且就在这段轨道附近。单个脚本文件最大 256 KB。
+
+### 服务端脚本
+
+脚本里按需定义下面这些函数，用不到的可以不写。`ctx` 是脚本上下文，`state` 是这个机构自己的状态对象（会随存档保存），`mech` 用来操作机构，`e` 是事件信息。
+
+| 函数 | 什么时候调用 |
+|---|---|
+| `create(ctx, state, mech)` | 机构建立或脚本重新加载 |
+| `tick(ctx, state, mech)` | 大约每 tick 一次（上一次没跑完时跳过） |
+| `onTrainApproach(ctx, state, mech, e)` | 列车开近，默认 300 格内；`e.requiredRail` 是它要走的那段轨道 |
+| `onTrainEnter` / `onTrainLeave` / `onTrainStop` | 列车驶上、驶离、停在机构上 |
+| `onRedstone(ctx, state, mech, e)` | 机构轨道两端的节点方块收到的红石信号变化，`e.oldPower` → `e.newPower` |
+| `onUse(ctx, state, mech, e)` | 玩家空手右键机构轨道的节点方块 |
+| `onMessage(ctx, state, mech, e)` | 收到列车或别的机构发来的消息，或 `ctx.after` 的定时到点 |
+| `onAligned(ctx, state, mech, e)` | 机构转到位 |
+| `dispose(ctx, state, mech)` | 机构被拆掉或脚本卸载 |
+
+`mech` 常用方法：
+
+| 方法 | 说明 |
+|---|---|
+| `candidates()` | 组内所有轨道，每项有 `id`、两端坐标 `x1 y1 z1 x2 y2 z2` 和 `yaw` |
+| `activeRail()` / `targetRail()` | 当前对准的轨道 / 正在转向的轨道 |
+| `rotateTo(id, 度每秒)` | 转到对准某段轨道，返回 `"ok"`；有车正在通过时返回 `"train_crossing"`，不会动 |
+| `animateTo(yaw, pitch, roll, dx, dy, dz, 度每秒, 格每秒)` | 以桥面中心为轴转动、平移 |
+| `animateAround(x, y, z, yaw, pitch, roll, dx, dy, dz, 度每秒, 格每秒)` | 绕指定点转动，开合桥用这个 |
+| `isMoving()` / `isAligned()` / `state()` | 是否在动、是否对准；`state()` 返回 `moving` / `locked` / `aligned` / `misaligned` |
+| `lock()` / `unlock()` | 锁定后列车不能通过 |
+| `holdRed()` / `releaseSignals()` | 把组内所有轨道的信号保持红灯 / 恢复 |
+| `rails()` | 逐段操作：`setSpeedLimit(km/h)`、`clearSpeedLimit()`、`holdRed()`、`releaseSignal()`、`setCollisionLayout(...)` |
+| `setApproachRange(格)` | 改 `onTrainApproach` 的触发距离，0～2048 |
+| `trainsOn()` / `trainsApproaching()` | 正在机构上的列车 / 正在接近的列车 |
+| `setRedstoneOutput(x, y, z, 强度)` | 让某个节点方块输出红石信号 |
+| `send(列车id, 文本)` / `sendToMechanism(分组, 文本)` | 给列车脚本或别的机构发消息 |
+
+`ctx` 常用方法：`ctx.after(毫秒, 名字)` 定时触发一次 `onMessage`，`ctx.sync(文本)` 把状态发给客户端脚本，`ctx.log(...)` 写日志，`ctx.now()` 取当前时间。
+
+开合桥示例：红石通电时绕桥头抬起 70°，断电时放下。
+
+```js
+function onRedstone(ctx, state, mech, e) {
+  var open = e.newPower > 0;
+  if (open == state.open) {
+    return;
+  }
+  var rail = mech.candidates().get(0);
+  var result = mech.animateAround(rail.x1, rail.y1, rail.z1, 0, open ? 70 : 0, 0, 0, 0, 0, 12, 1);
+  if (String(result) == "ok") {
+    state.open = open;
+    ctx.sync(JSON.stringify({ open: open }));
+  }
+}
+```
+
+### 客户端脚本
+
+`<id>.client.js` 用来画机构的外观，比如转车台的转盘和围栏。可以定义 `create(ctx, state, mech)`、`render(ctx, state, mech)`、`dispose(ctx, state, mech)`。`render` 里用 `ctx.drawModel(model, matrices)` 画跟着机构一起动的模型，`ctx.drawFixedModel(...)` 画不动的部分，`ctx.drawRailModel(轨道id, model, matrices)` 画在某段轨道上；`ctx.syncedState()` 读服务端 `ctx.sync` 发来的内容，`ctx.playSound(声音, 音量, 音调)` 播放声音。
+
+### 和列车脚本通信
+
+列车脚本里的 `train` 对象新增三个方法：
+
+```js
+let ahead = train.railScriptsAhead(500);
+train.sendToMechanism("depot_turntable", "request");
+let messages = train.pollMechanismMessages();
+```
+
+`railScriptsAhead(距离)` 列出前方这段距离内的机构，`sendToMechanism` 给机构发消息（机构在 `onMessage` 里收到），`pollMechanismMessages` 取回机构用 `send` 发给这列车的消息。
+
+### 命令
+
+| 命令 | 说明 |
+|---|---|
+| `/rte railscripts reload` | 重新加载全部轨道脚本 |
+| `/rte railscripts list` | 列出所有脚本和每个机构的当前状态 |
 
 ---
 
@@ -289,6 +446,96 @@ RTE 给 MTR 的铁路仪表板地图加了：
 
 ---
 
+## 车辆灯光
+
+默认开启。列车上线运行时，车头亮起车头灯，车尾亮起红色尾灯。车头灯有一道柔和的光束，并逐像素照亮前方的轨道、地面和建筑；环境越暗越明显。开着 Iris 光影时同样有效。
+
+按 `O` 打开设置可以调整：
+
+| 选项 | 默认 | 说明 |
+|---|---|---|
+| 列车: 车辆灯光（`vehicleLights`） | 开 | 总开关 |
+| 列车: 为未定义灯光的车辆添加默认灯光（`vehicleLightsAuto`） | 开 | 资源包没有定义灯光时，RTE 自己找灯的位置 |
+
+### 灯的位置
+
+没有定义灯光的车辆，RTE 会从模型里找车灯：MTR 4 资源包按 `ON_ROUTE_FORWARDS` / `ON_ROUTE_BACKWARDS` 等条件的发光部件找；MTR 3 的 JSON 资源包读 `LIGHTS` 阶段的部件；脚本列车读脚本画出的发光材质。都找不到时，按车体尺寸估一个位置。
+
+### 资源包自定义灯光
+
+在资源包里放 `assets/<命名空间>/rte_vehicle_lights.json`，定义了灯光的车辆不再自动找灯：
+
+```json
+{
+    "lights": [
+        {
+            "vehicles": ["mypack_metro_*"],
+            "type": "headlight",
+            "pos": [0.85, 1.2, 10.8],
+            "mirrorX": true
+        },
+        {
+            "vehicles": ["mypack_metro_*"],
+            "type": "taillight",
+            "pos": [0.85, 1.2, -10.8],
+            "mirrorX": true
+        }
+    ]
+}
+```
+
+| 字段 | 说明 |
+|---|---|
+| `vehicles` / `vehicle` | 车辆 id，可以是数组；结尾写 `*` 匹配前缀。写车型本名（不带 `_cab_1` 这类后缀）也能匹配 |
+| `type` | `headlight` 车头灯、`taillight` 尾灯、`brake` 制动灯、`door` 门灯、`running` 运行中常亮、`always` 一直亮 |
+| `pos` | `[x, y, z]`，单位为格；x 向右，y 从轨道面向上，z 正方向是车头 |
+| `axis` | 灯照射的方向，默认朝所在的那一端 |
+| `mirrorX` | 为 `true` 时在 x 的另一侧再放一盏 |
+| `color` | 十六进制颜色，如 `"#FFF3DC"`；车头灯默认暖白，尾灯与制动灯红色，门灯橙色 |
+| `brightness` | 亮度倍数，默认 1 |
+| `flareSize` / `flareWidth` / `flareHeight` | 灯头光晕大小 |
+| `blink` | `[亮的毫秒, 灭的毫秒]`，用来做闪烁的灯 |
+
+`z` 为正的灯属于车头那一端，为负的属于车尾那一端。哪一端是车头灯、哪一端是尾灯，会随列车行驶方向自动切换。
+
+---
+
+## 列车外部碰撞箱
+
+默认关闭。按 `O` 打开设置，勾选「列车: 列车外部碰撞箱」开启。
+
+- 车顶可以站人、行走，站在车顶时会跟着列车移动和转向。
+- 车身两侧和两端会挡住玩家，不能从车外穿过车厢。
+- 列车开门时车身两侧不再阻挡，玩家照常走进车厢上车；上车后由 MTR 原有的乘车逻辑接管。
+- 车顶高度默认 4.0 格（从轨道算起），可在设置里的「碰撞箱车顶高度」调整，范围 1～8。
+- 碰撞只作用于你自己控制的玩家，不影响其他玩家和生物。
+- 服务端也要安装 RTE，否则站在车顶会被服务器当成飞行踢出。
+
+### JS 控制列车碰撞箱
+
+列车脚本可以通过全局对象 `TrainCollision` 修改碰撞箱。第一个参数传入口函数收到的 `train`，车厢序号按本车组计算。
+
+```js
+TrainCollision.setHeight(train, 3.6);
+TrainCollision.resetHeight(train);
+TrainCollision.setEnabled(train, false);
+```
+
+自定义某节车厢的碰撞箱。每个箱写成 `横向中心,底部高度,纵向中心,宽度,高度,长度`，坐标以车厢中心为原点、轨道面为高度 0，箱与箱之间用分号分隔：
+
+```js
+let boxes = [
+    TrainCollision.box(0, 3.4, 0, 2.8, 0.2, 18),
+    TrainCollision.box(0, 0, 0, 2.8, 3.4, 0.25)
+];
+TrainCollision.setCarLayout(train, 0, boxes.join(";"));
+TrainCollision.clearCarLayout(train, 0);
+```
+
+自定义排布不会在开门时自动让开，需要的话由脚本在开关门时切换。每节车厢最多 256 个箱。
+
+---
+
 ## 资源包工作台
 
 从 RTE 配置界面进入。用于查看和处理旧版资源包：预览车辆模型（按 bbmodel 的 outliner 分组还原部件位置）、导出资源包等。
@@ -388,6 +635,10 @@ config/rte/mapcache/<世界标识>.rtemap
 | `traceDoorSides` | 关 | 排查用 —— 在日志打印每节车的开门侧判定 |
 | `legacyFlippedPositionFix` | `off` | 排查用 —— 为缺失 `positionsFlipped` 的位置定义补齐数据，可填 `off` / `copy` / `mirror`。**经查证 MTR 4 的镜像转换本身是正确的，此项无需开启** |
 | `jcmJsChoice` | `0` | JCM 脚本兼容策略 |
+| `vehicleLights` | 开 | 车辆灯光，见「车辆灯光」 |
+| `vehicleLightsAuto` | 开 | 为没有定义灯光的车辆自动找灯 |
+| `trainCollision` | 关 | 列车外部碰撞箱 |
+| `trainCollisionHeight` | `4.0` | 列车碰撞箱车顶高度，1～8 |
 
 排查车辆显示问题时，第一步就是把 `vanillaVehicleMode` 打开对照一次 —— 现象消失说明是 RTE 的改动引起，逐项打开即可定位。
 
@@ -398,6 +649,8 @@ config/rte/mapcache/<世界标识>.rtemap
 以下是**已知未解决**的：
 
 - **部分老包车辆的车头/车尾镜像异常、车厢位置错位。** 在当前版本中用万方 4 号线复测，车头、车尾朝向和车厢间距均正常，未能复现；重庆 crt333 的资源包未在测试环境中，尚未复测。如仍遇到，请提供车型与截图。
+
+- **部分旧包只按长编组写了车厢筛选。** 例如重庆 6 号线：第 2 节和倒数第 2 节有专用的中间车外壳，编成 2 节或 3 节时会和车头外壳叠在一起。这是资源包本身的写法，MTR 3 下也一样；请按资源包设计的长度编组（6 号线建议 4 节以上）。
 
 ## 使用提示
 

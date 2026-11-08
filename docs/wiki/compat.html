@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>旧包兼容清单 · RTE 物品 Wiki</title>
+<meta name="description" content="MTR 3.x 与 NTE 资源包在 RTE 下的实测兼容情况。">
+<link rel="stylesheet" href="../js/style.css">
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+<div class="layout">
+<nav class="side">
+<a class="brand" href="../index.html">Rollingcats Transit Expansion</a>
+<div class="sub">物品与方块 Wiki</div>
+<div class="grp">物品</div><ul>
+<li><a href="index.html">总览</a></li>
+<li><a href="rail-path-editor.html">轨道路径编辑器</a></li>
+<li><a href="route-path-creator.html">路线路径创建器</a></li>
+<li><a href="compound-creator.html">复合创建器</a></li>
+<li><a href="displacement-tool.html">位移工具</a></li>
+</ul>
+<div class="grp">方块</div><ul>
+<li><a href="direct-node.html">直线节点</a></li>
+<li><a href="free-node.html">自由节点</a></li>
+<li><a href="eye-candy.html">装饰物件</a></li>
+</ul>
+<div class="grp">参考</div><ul>
+<li><a href="rail-collision.html">轨道碰撞箱</a></li>
+<li><a href="keybinds.html">键位与命令</a></li>
+<li><a href="creative-tabs.html">创造模式标签页</a></li>
+<li><a href="compat.html" class="on">旧包兼容清单</a></li>
+</ul>
+<div class="grp">其他</div><ul><li><a href="../js/index.html">JS 脚本手册</a></li><li><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></li></ul>
+</nav>
+<main>
+<div class="crumb"><a href="../index.html">首页</a> / <a href="index.html">物品 Wiki</a> / 旧包兼容清单</div>
+<h1>旧包兼容清单</h1>
+<p class="lede">MTR 3.x 与 NTE 资源包装上 RTE 后在 MTR 4 下的实测情况。只列在游戏里实际跑过的包，清单会持续补充。</p>
+<h2>实测结果</h2>
+<div class="tw"><table><tr><th>资源包</th><th>状态</th><th>说明</th></tr>
+<tr><td><strong>重庆 3 号线列车追加（crt371）</strong></td><td>可用</td><td>车门向两侧滑开、LCD 显示正常，可重联</td></tr>
+<tr><td><strong>重庆 3 号线列车追加（crt333）</strong></td><td>beta.4 修复</td><td>混用不同涂装编组时贯通道脚本会陷入死循环，beta.4 起按脚本文件划分车组</td></tr>
+<tr><td><strong>武汉 19 号线（wh19）</strong></td><td>可用</td><td>可与 crt371 混编；车内 MMI 屏闪烁在 beta.4 修复</td></tr>
+<tr><td><strong>万方地铁 4 号线</strong></td><td>可用</td><td>车厢位置与头尾朝向正常</td></tr>
+<tr><td><strong>重庆 6 号线（crt6）</strong></td><td>可用</td><td>车辆、车门与目的地屏正常；请编 4 节以上，2～3 节编组时中间车外壳会和车头叠在一起（资源包按长编组写的筛选规则，MTR 3 下也一样）</td></tr>
+<tr><td><strong>重庆 6 号线 DKZ56 追加</strong></td><td>部分可用</td><td>车辆可以显示，车门位置已修；部分贴图放在子目录里，需要和 6 号线本体包一起装</td></tr>
+</table></div>
+<h2>反馈</h2>
+<p>你的包不在清单里，或者实际表现和清单不一致，请到 <a href="https://github.com/Rolling-Catawa/rte/issues">Issue</a> 附上包名、下载地址和 <code>logs/latest.log</code>。</p>
+<div class="pager"><a href="creative-tabs.html">← 创造模式标签页</a><span></span></div>
+<footer>Copyright © 2026 Rolling-Catawa · <a href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a></footer>
+</main>
+</div>
+</body>
+</html>
