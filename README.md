@@ -1,138 +1,23 @@
-# Rollingcats Transit Expansion
+# Rollingcats Transit Expansion 已迁移
 
-> 面向 Minecraft Transit Railway 4.0 的轨道几何与建设工具,并提供旧版资源包兼容层。
+本仓库不再使用。RTE 已开源（GPL-3.0-or-later），源代码、文档、更新日志和 Issue 都已迁移到：
 
-| | |
-|---|---|
-| 版本 | 1.0.0-beta.4 |
-| Minecraft | 1.20.1 / 1.20.4 |
-| 加载器 | Fabric / Forge(Architectury) |
-| 必需前置 | Minecraft Transit Railway 4.0.0+ |
-| 可选前置 | MSD(接触网功能需要) |
-| 作者 | Rolling-Catawa |
+**https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion**
+
+- 在线文档：https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/
+- 反馈问题：https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion/issues
+
+旧的文档链接会自动跳转到新地址。
 
 ---
 
-## 这个模组解决什么
+# Rollingcats Transit Expansion has moved
 
-MTR 本身把轨道当作「两点之间的连接」。RTE 把它当作**几何对象**来处理 —— 曲线可以拟合、超高可以设定、线形可以复用、整条链可以一次性平顺。
+This repository is no longer used. RTE is now open source (GPL-3.0-or-later). Source code, documentation, changelog and issues have moved to:
 
-同时,MTR 4 与 3.x 的资源包格式差异很大,大量旧包在 4.0 下功能残缺。RTE 内置兼容层,让它们尽可能正常工作。
+**https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion**
 
----
+- Documentation: https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/
+- Issues: https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion/issues
 
-## 建轨
-
-**两种路径编辑器。** 曲线拟合按给定点自动生成平顺路径并与相邻轨道相切;手动贝塞尔用控制点精确塑形,两端切线自动吸附相邻方向。
-
-**直连节点方块**可放在世界里,用滑块或数值精确控制连接角度。**自由节点**支持非整数 XYZ 位置、Y 轴位移、墙面与顶面吸附，没有碰撞箱和原版选框，采用 Axiom Builder Gizmo 的选择、中心/单轴/平面/旋转拖动、吸附、微调、复制粘贴和撤销重做操作，并能直接用 MTR 连接器点选。
-
-**批量工具**
-
-| 工具 | 作用 |
-|---|---|
-| 链式平滑 | 连续多段轨道一次性平顺 |
-| 平行线复制 | 按偏移量生成并行线路,支持镜像单向轨 |
-| 轨旁阵列 | 沿轨批量放置装饰,集成 MSD 接触网 |
-| 切片工具 | 分割轨道 |
-| 复合构建器 | 组合式建轨 |
-| 位移工具 | 整体平移轨道 |
-
-支持撤销与单段轨道修复。
-
-逐轨可编辑**轨道类型、限速、纵曲线半径、超高角度、自定义配置字段**。建轨时动作栏实时显示半径、坡度等几何指标。
-
-轨道可生成真实、可站立的 **AABB 碰撞箱阵列**。支持宽高、间距、纵横偏移和多列排布；例如列偏移 `-2,2` 会保留中间空气。资源脚本可通过 `RailCollision` 设置规则阵列或逐箱布局，完整方法见[使用手册的轨道碰撞箱章节](MANUAL.md#轨道碰撞箱)。
-
-内置**线形预设与模板**(按单位弦长归一化,可跨轨复用),并通过 `TrackConnectorRegistry` 开放给外部扩展。
-
-另有线路创建器与线路图。
-
----
-
-## 超高
-
-轨道可设置超高角度,列车通过时随之倾斜。作用范围覆盖轨道网格、车身、部件与显示屏、脚本车 LCD、内置连接管、第一人称骑乘镜头,以及玩家站立平面。
-
-第一人称过弯时地平线倾斜、车厢内部保持水平。
-
-数值语义与 ANTE 一致:空表取 0,两端值向外恒定延伸,键之间余弦插值,不做跨轨自动融合。接缝平顺由编辑器的「对齐接缝」完成。
-
----
-
-## 旧版资源包兼容
-
-内置 **Rhino** 与 **GraalJS** 两套 JS 引擎,默认 Rhino,可在资源包中用 `engine` 字段指定。
-
-加载具备容错:路径中的大写字母与非法字符自动净化,MTR3 与 MTR4 的车辆 ID 及 `@definition@` 变体之间建立别名映射。MTR3 资源包会触发 MTR4 的 legacy 转换并补齐变体。
-
-脚本渲染支持脚本车、脚本眼糖与脚本车厢连接。脚本按函数独立退避 —— 某个函数连续失败会被暂停一段时间,避免单个坏脚本每帧每车抛异常拖垮整局。
-
-针对 MTR 4 与 3.x 的资源格式差异另有若干补偿:`default.png` 基础贴图改为按文件名匹配(MTR 4 要求路径严格相等,老包多写作 `xxx/default.png`);放宽 `pack_format` 校验以接受为更早 MC 版本打包的老包;按门的位置推导 MTR 4 需要的 `DOORWAY` 部件(3.x 格式没有这个概念);资源包自带贯通道时自动抑制内置贯通道以免重叠。超大贴图在读取时降采样,老包常见的 8K 贴图不再撑爆显存。
-
-以上每一项都是独立开关,可逐项关闭以定位问题,完整列表见[使用手册](MANUAL.md)的配置章节。
-
-针对 3.x 与 4.x 的**时间基准差异**做了统一换算 —— MTR 4 全线以毫秒计,3.x 脚本按 tick / 秒编写,速度、加速度、停站时间三处均已对齐,旧包的预计到站时间等计算不再失真。
-
-检测到 JCM 时会在加载完成后提示,可选择禁用 RTE 的 JS 或忽略。
-
----
-
-## 服务端数据同步
-
-MTR 客户端只同步玩家附近的数据,这让仪表盘和车载显示经常缺内容。RTE 增加了三组按需请求(**需服务端同样安装本模组**,缺失时自动退回原有行为):
-
-- **完整行车路径** —— 修正资源包据此推算的均速与预计到站时间
-- **全量轨道**(分页传输) —— 仪表盘不再走远即缺段
-- **视口内列车位置**(10 Hz + 外推平滑) —— 超出同步范围的列车也能在图上看到
-
-仪表盘轨道另会采样为折线**持久化到本地**(`config/rte/mapcache/`),退出世界与关闭游戏时落盘,下次进入直接读取。
-
----
-
-## 资源包工作台
-
-游戏内的车辆资源编辑环境。列出已加载车辆、生成快照,并通过递归 JSON 编辑器直接修改字段。
-
-内置模型预览视口,支持贴图渲染、旋转元素处理与右键拖拽缩放。
-
-修改后可注册为副本立即生效,或存入 autoload 以在重启后保留。支持导入本地贴图与模型,导出为 JSON 或自包含的资源包 zip。
-
----
-
-## 其他
-
-装饰方块包含装饰物件（内置 7 种模型，附属性编辑器）、直线节点与自由节点。
-
-界面基于 ImGui 构建,世界画布与浮动面板混合模式,内置全量中文字表与独立设置屏,物品归入创造模式标签页。**不再需要 Cloth Config。**
-
-RTE 的数据以附加字段形式挂载于 MTR 轨道序列化结构之上,不修改原版数据结构。
-
----
-
-## 构建
-
-```bash
-./gradlew clean build
-```
-
-该命令会自动准备构建依赖、运行兼容性测试，并生成 Minecraft 1.20.1 / 1.20.4 的 Fabric 与 Forge 四个发布包，同时校验构建元数据和 SHA-256。发布产物统一位于 `build/dist/`。开发环境运行使用 `./gradlew :fabric:runClient`。
-
----
-
-## 文档
-
-- [使用手册](MANUAL.md) —— 键位、命令、逐功能操作说明、配置项全表与已知问题
-- [功能列表](FEATURES.md) —— 完整清单
-- [更新日志](CHANGELOG.md) —— 各版本的改动明细
-- [JS 脚本手册](https://rolling-catawa.github.io/rte/js/) —— 资源包脚本 API
-
-## 许可
-
-**保留所有权利(All Rights Reserved)。** 见 [LICENSE.txt](LICENSE.txt)。
-
-Copyright (c) 2026 Rolling-Catawa
-
-未经作者书面许可,不得复制、修改、再分发本项目的源代码或构建产物,亦不得用于二次开发或商业用途。
-
-允许:自由下载、安装并在个人或服务器环境中使用本模组;在注明来源的前提下录制、直播、截图与传播游戏内容。
+Old documentation links redirect to the new site automatically.

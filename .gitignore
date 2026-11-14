@@ -1,9 +1,0 @@
-*
-!*.md
-!LICENSE.txt
-!.gitignore
-!docs/
-!docs/**
-!.github/
-!.github/ISSUE_TEMPLATE/
-!.github/ISSUE_TEMPLATE/*.yml

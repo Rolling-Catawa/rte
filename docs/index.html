@@ -3,201 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rollingcats Transit Expansion</title>
-<meta name="description" content="面向 Minecraft Transit Railway 4.0 的轨道几何与建轨工具模组。">
+<title>RTE 已迁移</title>
+<meta http-equiv="refresh" content="3; url=https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/">
+<link rel="canonical" href="https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/">
+<script>
+(function () {
+  var base = "https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/";
+  var rest = location.pathname.replace(/^\/rte(\/|$)/, "");
+  location.replace(base + rest + location.search + location.hash);
+})();
+</script>
 <style>
-:root{
-  --bg:#f7f8f6; --fg:#171a17; --muted:#646a64; --line:#e1e4df;
-  --card:#ffffff; --accent:#2f6f4e; --accent-strong:#245a3f; --accent-soft:#e6f2eb; --code:#f1f3ef;
-  --shadow:0 1px 2px rgba(20,30,20,.05),0 6px 20px rgba(20,30,20,.06);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#121412; --fg:#e8ebe6; --muted:#9aa19a; --line:#262a26;
-    --card:#191c19; --accent:#7fc0a0; --accent-strong:#95cfb2; --accent-soft:#1b2a22; --code:#1f231f;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#121412; --fg:#e8ebe6; --muted:#9aa19a; --line:#262a26;
-  --card:#191c19; --accent:#7fc0a0; --accent-strong:#95cfb2; --accent-soft:#1b2a22; --code:#1f231f;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.25);
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--fg);
-  font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  -webkit-font-smoothing:antialiased;
-}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
-.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 86%,transparent);
-  backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:20px;height:58px}
-.top .logo{font-weight:700;color:var(--fg);letter-spacing:-.01em}
-.top .logo span{color:var(--accent)}
-.top nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
-.top nav a{color:var(--muted);font-size:14.5px;padding:6px 11px;border-radius:7px;white-space:nowrap}
-.top nav a:hover{color:var(--fg);background:var(--card);text-decoration:none}
-header{padding:84px 0 72px;border-bottom:1px solid var(--line);
-  background:radial-gradient(900px 380px at 15% -10%,var(--accent-soft),transparent 70%)}
-h1{font-size:clamp(32px,6vw,52px);line-height:1.1;margin:0 0 18px;letter-spacing:-.025em;font-weight:700}
-.tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--accent);background:var(--accent-soft);
-  padding:5px 12px;border-radius:999px;margin-bottom:22px;font-weight:600}
-.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
-.lead{font-size:clamp(17px,2.2vw,20px);color:var(--muted);margin:0 0 14px;max-width:60ch}
-.meta{font-size:14px;color:var(--muted);margin:0 0 30px}
-.btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;padding:11px 20px;border-radius:9px;text-decoration:none;
-  font-size:15px;font-weight:550;border:1px solid var(--line);color:var(--fg);background:var(--card);
-  transition:border-color .15s,transform .15s}
-.btn:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-1px)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.btn.primary:hover{background:var(--accent-strong)}
-section{padding:72px 0;border-bottom:1px solid var(--line)}
-.eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:0 0 8px;font-weight:700}
-h2{font-size:clamp(24px,3.4vw,30px);line-height:1.25;letter-spacing:-.015em;margin:0 0 30px;font-weight:680}
-h3{font-size:18px;margin:0 0 8px;font-weight:640}
-.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 22px 20px;
-  transition:border-color .15s,box-shadow .15s,transform .15s}
-.item:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:var(--shadow);transform:translateY(-2px)}
-.item p{margin:0;color:var(--muted);font-size:15px}
-.item h3 a{color:var(--fg)}
-.new{display:inline-block;font-size:11.5px;font-weight:650;color:var(--accent);background:var(--accent-soft);
-  border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:3px}
-.stats{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:0 0 30px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
-.stat b{display:block;font-size:34px;line-height:1.1;letter-spacing:-.02em;color:var(--fg);font-weight:700;margin-bottom:6px}
-.stat span{color:var(--muted);font-size:14.5px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 22px}
-.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-size:15px;min-width:420px}
-th,td{text-align:left;padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top}
-tr:last-child td{border-bottom:none}
-th{color:var(--muted);font-weight:650;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em}
-code{background:var(--code);padding:2px 6px;border-radius:5px;font-size:.9em;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.note{background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));
-  border-radius:12px;padding:16px 20px;font-size:15px;color:var(--muted);margin-top:16px}
-.note strong{color:var(--fg)}
-ul{padding-left:20px;margin:0}
-li{margin-bottom:8px;color:var(--muted);font-size:15.5px}
-li strong{color:var(--fg);font-weight:620}
-footer{padding:40px 0 60px;font-size:14px;color:var(--muted)}
-footer .wrap{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
-footer a{color:var(--muted)}
-@media(max-width:640px){
-  .top nav a.opt{display:none}
-  header{padding:56px 0 48px}
-  section{padding:52px 0}
-}
+body { font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem; line-height: 1.6; color: #222; background: #fff; }
+a { color: #0b6bcb; }
+@media (prefers-color-scheme: dark) { body { color: #ddd; background: #111; } a { color: #6cb2ff; } }
 </style>
 </head>
 <body>
-
-<div class="top"><div class="wrap">
-  <a class="logo" href="#">R<span>T</span>E</a>
-  <nav>
-    <a href="#features">功能</a>
-    <a href="#download">下载</a>
-    <a href="#docs" class="opt">文档</a>
-    <a href="wiki/index.html">Wiki</a>
-    <a href="js/index.html">JS 手册</a>
-    <a href="https://github.com/Rolling-Catawa/rte">GitHub</a>
-  </nav>
-</div></div>
-
-<header><div class="wrap">
-  <div class="tag">1.0.0-beta.4 · Minecraft 1.20.1 / 1.20.4 · Fabric / Forge</div>
-  <h1>Rollingcats Transit Expansion</h1>
-  <p class="lead">MTR 4.0 的附属模组。可以精细调整轨道的弯道、坡度和超高，放置自由节点，让轨道可以站人，让列车重联运行，也能让很多旧版资源包在 MTR 4 下正常使用。</p>
-  <p class="meta">需要先安装 MTR 4.0 及以上版本和 Architectury API。</p>
-  <div class="btns">
-    <a class="btn primary" href="#download">下载</a>
-    <a class="btn" href="wiki/index.html">物品 Wiki</a>
-    <a class="btn" href="js/index.html">JS 脚本手册</a>
-    <a class="btn" href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a>
-    <a class="btn" href="https://github.com/Rolling-Catawa/rte/blob/main/FEATURES.md">功能列表</a>
-    <a class="btn" href="https://github.com/Rolling-Catawa/rte/issues">反馈问题</a>
-  </div>
-</div></header>
-
-<section id="features"><div class="wrap">
-  <h2>主要功能</h2>
-  <div class="grid">
-    <div class="item"><h3>车辆灯光<span class="new">beta.4</span></h3><p>列车上线后亮起车头灯和尾灯。车头灯有柔和的光束，会照亮前方的轨道和地面，开光影也能用。灯的位置从车辆模型里读取。</p></div>
-    <div class="item"><h3>轨道脚本与机构<span class="new">beta.4</span></h3><p>把几段轨道编成一组，挂上 JS 脚本，就能做转车台、移车台、开合桥。机构没对准时列车会停下等待。</p></div>
-    <div class="item"><h3>公路标线<span class="new">beta.4</span></h3><p>车道线、停止线、人行横道，像铺轨道一样铺，会贴着地面和台阶走。</p></div>
-    <div class="item"><h3>列车外部碰撞箱<span class="new">beta.4</span></h3><p>可以站在车顶跟车走，车身挡住玩家，开门时照常上车。默认关闭。</p></div>
-    <div class="item"><h3>自由节点</h3><p>节点可以放在方块之间的任意位置，也能贴在墙上、调整朝向，用拖拽手柄移动和旋转。</p></div>
-    <div class="item"><h3>轨道碰撞箱</h3><p>轨道上可以站人、走路。可以设成多列，中间留空。</p></div>
-    <div class="item"><h3>列车重联与混编</h3><p>两组车可以连成一列跑，不同车型也行。每组车的屏幕和车号各自显示正确。</p></div>
-    <div class="item"><h3>轨道线形</h3><p>弯道有多种画法，坡道可以设竖曲线，坡度用千分比显示。</p></div>
-    <div class="item"><h3>超高</h3><p>弯道可以向内倾斜，车体、视角和车上的玩家会一起倾斜。</p></div>
-    <div class="item"><h3>复合构建器</h3><p>画一次隧道或桥梁的截面，沿着轨道一次铺完。遇到弯道和超高会自动跟着转。</p></div>
-    <div class="item"><h3>接触网规划器</h3><p>沿轨道自动摆放接触网支柱和导线，间距、高度都能调。需要安装 MSD。</p></div>
-    <div class="item"><h3>旧版资源包兼容</h3><p>让很多 MTR 3 时代的车辆资源包在 MTR 4 下能用。每项兼容处理都能单独关掉。</p></div>
-    <div class="item"><h3>资源包工作台</h3><p>在游戏里查看和修改车辆资源，导出成资源包，可以连车辆音效一起导出。</p></div>
-    <div class="item"><h3>JavaScript 脚本</h3><p>资源包可以用脚本做车内屏幕、动态贴图、声音和粒子。<a href="js/index.html">查看手册</a></p></div>
-  </div>
-</div></section>
-
-<section id="legacy"><div class="wrap">
-  <h2>旧版资源包</h2>
-  <p class="lead">很多 MTR 3 时代的资源包直接放进 MTR 4 会报错或者少功能，RTE 做了一层兼容处理。</p>
-  <div class="stats">
-    <div class="stat"><b>322</b><span>个社区资源包参与测试</span></div>
-    <div class="stat"><b>567 → 19</b><span>加载报错条数</span></div>
-    <div class="stat"><b>2</b><span>套脚本引擎可选</span></div>
-  </div>
-  <ul>
-    <li>两套脚本引擎（Rhino 和 GraalJS），资源包可以自己选</li>
-    <li>某个脚本出错时只暂停它自己，不会拖垮整个游戏</li>
-    <li>旧包按秒、按 tick 算的时间会自动换算，到站时间显示正确</li>
-    <li>贴图路径对不上时按文件名查找</li>
-    <li>自动补上 MTR 4 需要的车门开口</li>
-    <li>超大贴图自动缩小，减少显存占用</li>
-  </ul>
-</div></section>
-
-<section id="download"><div class="wrap">
-  <h2>下载与前置模组</h2>
-  <div class="panel tw"><table>
-    <tr><th>模组</th><th>是否必需</th><th>版本</th></tr>
-    <tr><td>Minecraft Transit Railway</td><td>必需</td><td>4.0.0 及以上</td></tr>
-    <tr><td>Architectury API</td><td>必需</td><td>9.2.14 及以上</td></tr>
-    <tr><td>Fabric API</td><td>Fabric 必需</td><td>和 Minecraft 版本对应即可</td></tr>
-    <tr><td>MSD</td><td>可选</td><td>装了才有接触网规划器</td></tr>
-  </table></div>
-  <div class="note"><strong>客户端必须安装，服务端可以不装。</strong>服务端装了以后，远处的轨道和列车位置也能同步过来；不装就和原版 MTR 一样，不影响游玩。</div>
-</div></section>
-
-<section id="docs"><div class="wrap">
-  <h2>文档</h2>
-  <div class="grid">
-    <div class="item"><h3><a href="wiki/index.html">物品 Wiki</a></h3><p>每件物品、每种方块怎么用，还有键位和命令。</p></div>
-    <div class="item"><h3><a href="js/index.html">JS 脚本手册</a></h3><p>给资源包作者看的脚本写法和接口说明。</p></div>
-    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/MANUAL.md">使用手册</a></h3><p>所有功能的操作说明和设置项。</p></div>
-    <div class="item"><h3><a href="https://github.com/Rolling-Catawa/rte/blob/main/FEATURES.md">功能列表</a></h3><p>全部功能清单。</p></div>
-  </div>
-</div></section>
-
-<section id="issues"><div class="wrap">
-  <h2>已知问题</h2>
-  <ul>
-    <li>部分旧资源包的车辆可能出现车头车尾方向反了、车厢错位。当前版本没能复现，遇到的话请附上车型和截图反馈。</li>
-    <li>旧车渲染接管（<code>legacyVehicleTakeover</code>）还在实验阶段，默认关闭。</li>
-  </ul>
-  <div class="note">遇到问题请到 <a href="https://github.com/Rolling-Catawa/rte/issues">Issue</a> 反馈，附上 RTE 版本、用的是 Fabric 还是 Forge、MTR 版本，以及游戏目录下的 <code>logs/latest.log</code>。</div>
-</div></section>
-
-<footer><div class="wrap">
-  <p>Copyright © 2026 Rolling-Catawa · 保留所有权利<br>
-  <a href="https://github.com/Rolling-Catawa/rte/blob/main/THIRD-PARTY-NOTICES.md">第三方组件声明</a> · <a href="https://github.com/Rolling-Catawa/rte/blob/main/LICENSE.txt">许可</a></p>
-</div></footer>
-
+<h1>RTE 已迁移</h1>
+<p>文档已搬到新地址，正在跳转：<a href="https://rolling-catawa.github.io/Rollingcats-Transit-Expansion/">rolling-catawa.github.io/Rollingcats-Transit-Expansion</a></p>
+<p>源代码与 Issue：<a href="https://github.com/Rolling-Catawa/Rollingcats-Transit-Expansion">github.com/Rolling-Catawa/Rollingcats-Transit-Expansion</a></p>
+<p lang="en">The documentation has moved. Redirecting to the new site.</p>
 </body>
 </html>
