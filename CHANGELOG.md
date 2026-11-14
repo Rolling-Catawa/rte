@@ -5,6 +5,64 @@ Release notes for Rollingcats Transit Expansion.
 
 ---
 
+## 1.0.1（计划中）
+
+### English
+
+- Coupling and uncoupling physics: cars couple when they meet at low speed and can be uncoupled anywhere along the train, with buffer and coupler forces.
+- Unpowered car physics: cars without traction roll, coast and brake according to grade, curves and resistance, so they can be pushed, pulled or left to run free.
+- A major overhaul of manual driving.
+
+### 中文
+
+- 车厢连挂与脱钩物理：低速相遇时自动连挂，可以在列车任意位置摘钩，带缓冲器和车钩受力。
+- 无牵引车辆物理：没有动力的车厢按坡度、曲线和阻力溜行、惰行和制动，可以被推、被拉，也可以放任溜车。
+- 手动驾驶系统全面加强。
+
+---
+
+## 1.0.0（开发中）
+
+### English
+
+- Scripted rail styles: rail styles in resource packs can run a JavaScript file (`scriptFiles`) to draw animated models along each rail. Styles with only a script and no `model` now work too.
+- Rail triggers: a rail can carry key/value pairs that are written into a train's custom data when its head enters the rail, so train scripts can switch parts at chosen places.
+- Rails that only use MTR 4's own rail styles keep those styles instead of being drawn with RTE's default sleepers.
+- Two node editor windows open at once no longer share buttons.
+- Vehicle light editor: adjust light positions in 3D on the train, plus colour, brightness, flare size, blinking and mirroring, saved per vehicle type and exportable as a resource pack file.
+- Headlights draw a lens glare with a horizontal streak; automatically found lamps are moved to the outer surface of the car so they no longer light up the cab.
+- The train screen lists custom data that no script has registered, so rail trigger values can be seen and edited.
+- Fixed the route path creator crashing when right-clicking the air.
+- Fixed rails set to "(hidden)" still drawing MTR's default rail.
+- Fixed scripted LCDs going blank when two packs declare the same top-level `const` (for example several Wanfang packs together), and the GraalJS fallback failing to start since beta.3.
+- Volumetric headlight beams are smoother: less grain, no hard edge at the beam boundary, and slightly less haze.
+- Experimental builds for Minecraft 1.19.2 with MTR 4.0.5 (Fabric and Forge).
+- OBJ and CSV models whose material names carry an unknown render type (such as Blender's `436.002`) now load and draw as exterior instead of failing.
+- Scripted rails expose the NTE-style rail getters such as `getRenderReversed()`.
+- One runaway script on a train no longer stops the other scripts on that train from creating their textures.
+- Fixed `train.trainCars()` returning 1 for head and tail cars whose script list differs from the middle cars, which sent some car number scripts into an endless loop. Cars in one coupled unit now all see the whole unit again.
+
+### 中文
+
+- 支持资源包脚本轨道：资源包里的轨道样式可以用 `scriptFiles` 挂 JS 脚本，沿每段轨道画会动的模型；只写脚本、不写 `model` 的样式也能使用。
+- 新增轨道触发：轨道可以带键值，列车车头驶上时写进这列车的自定义数据，列车脚本据此在指定地点切换部件。
+- 只用 MTR 4 自带轨道样式的轨道保留原样式，不再被 RTE 默认枕木覆盖。
+- 同时打开两个节点编辑窗口时，按钮不再互相冲突。
+- 新增车灯编辑器：在车上用 3D 方式调整灯位，并可调颜色、亮度、光斑大小、闪烁和左右镜像，按车型保存，可导出为资源包文件。
+- 车头灯改为带横向光带的炫光；自动识别的灯位推到车体外表面，不再照亮司机室内部。
+- 列车界面会列出没有被脚本登记的自定义数据，轨道触发写入的值可以查看和修改。
+- 修复路线路径创建器右键空气时崩溃。
+- 修复设为「（隐藏）」的轨道仍然显示 MTR 默认轨道。
+- 修复多个资源包在顶层重复声明同名 `const`（例如同时装多个万方包）时脚本 LCD 不显示，以及 beta.3 起 GraalJS 备用引擎无法启动的问题。
+- 车头灯体积光更平滑：噪点更少，光锥边缘不再出现硬边，整体雾感略微减弱。
+- 新增 Minecraft 1.19.2（MTR 4.0.5）测试版构建，支持 Fabric 和 Forge。
+- 材质名带有未知渲染类型（例如 Blender 自动生成的 `436.002`）的 OBJ、CSV 模型不再加载失败，按 exterior 绘制。
+- 脚本轨道补上 `getRenderReversed()` 等 NTE 风格的轨道属性方法。
+- 同一列车上某个脚本陷入死循环时，不再连带其他脚本无法创建贴图。
+- 修复头尾车与中间车脚本列表不同时，头尾车的 `train.trainCars()` 只返回 1，导致部分车号脚本死循环。同一编组单元内的车重新按整组计数。
+
+---
+
 ## 1.0.0-beta.4
 
 ### English

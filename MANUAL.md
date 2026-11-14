@@ -10,7 +10,7 @@ Rollingcats Transit Expansion（modId `rte`）—— MTR 4.0.x 的轨道几何�
 
 | 项 | 要求 |
 |---|---|
-| Minecraft | 1.20.1 / 1.20.4 |
+| Minecraft | 1.20.1 / 1.20.4；1.19.2 测试版（1.0.0 起） |
 | 加载器 | Fabric / Forge（Architectury） |
 | 前置 | MTR 4.0.x（必需） |
 | 可选前置 | MSD（MTR Station Decoration）—— 接触网相关功能需要 |
@@ -224,9 +224,32 @@ RailCollision.clearLayout(pathData);
 
 ---
 
+### 列车经过时写入（轨道触发）
+
+*1.0.0 起提供。*
+
+在轨道编辑界面展开「列车经过时写入」，填上键和值，点「保存到此轨道」。之后每当列车车头驶上这段轨道，这些键值就会写进这列车的自定义数据，按 `I` 打开列车界面能看到。值留空表示从列车上删掉这个键。
+
+列车脚本用 `train.getCustomConfigs()` 读取这些数据，就能在经过某段轨道时自动切换部件，比如过分相区降下受电弓、进入隧道开灯、到某一站后换目的地显示：
+
+```js
+function render(ctx, state, train) {
+  var pantograph = train.getCustomConfigs().get("pantograph");
+  if (pantograph == "down") {
+    ctx.drawCarModel(pantographDown, 0, null);
+  } else {
+    ctx.drawCarModel(pantographUp, 0, null);
+  }
+}
+```
+
+写入在服务端进行，会随存档保存并同步给所有玩家，所以服务端也要安装 RTE。
+
+---
+
 ## 资源包脚本轨道
 
-*1.0.0-beta.5 起提供。*
+*1.0.0 起提供。*
 
 资源包里的轨道样式可以挂 JS 脚本，用脚本画沿轨道摆放、会动的模型，比如闪烁的信号灯带、转动的风车、随时间变化的装饰。写在 `assets/<命名空间>/rails/` 下的 json 里：
 
@@ -509,6 +532,56 @@ RTE 给 MTR 的铁路仪表板地图加了：
 
 ---
 
+## 列车脚本：按车厢区分车型
+
+*1.0.0 起提供。*
+
+一列车往往由不同车型的车厢编成：头车、中间车、尾车用的是不同的车型 ID，挂的脚本也可能不一样。脚本里可以逐节读取车型 ID，按车厢决定画什么。
+
+| 写法 | 得到什么 |
+|---|---|
+| `train.carTypeId(i)` | 本车组第 `i` 节车厢的车型 ID（从 0 开始数），序号越界时是空字符串 |
+| `train.carTypeIds()` | 本车组所有车厢的车型 ID，按车厢顺序排成数组 |
+| `train.trainTypeId()` | 本车组第一节车厢的车型 ID |
+| `train.trainCars()` | 本车组有几节车厢 |
+
+**车组是怎么分的：** 车型 ID 以 `_cab_1` 或 `_cab_3` 结尾的车厢开始一个新车组，`_cab_2` 或 `_cab_3` 之后结束。两列车重联时就是两个车组，各跑各的脚本，车号、LCD 互不干扰。同一个车组里，头尾车和中间车的脚本列表可以不同（比如只有头尾车挂 MMI 屏脚本），它们看到的 `trainCars()` 都是整个车组的车厢数。
+
+**例 1：只在驾驶室车厢画司机台屏幕**
+
+```js
+function render(ctx, state, train) {
+  for (let i = 0; i < train.trainCars(); i++) {
+    const type = train.carTypeId(i);
+    if (type.endsWith("_cab_1") || type.endsWith("_cab_2") || type.endsWith("_cab_3")) {
+      ctx.drawCarModel(state.cabScreen, i, null);
+    }
+  }
+}
+```
+
+**例 2：混编列车里按车型换贴图**
+
+同一列车里既有 `crt3_a`（带受电弓的动车）又有 `crt3_b`（拖车）时：
+
+```js
+function render(ctx, state, train) {
+  const types = train.carTypeIds();
+  for (let i = 0; i < types.length; i++) {
+    if (types[i].startsWith("crt3_a")) {
+      ctx.drawCarModel(state.pantograph, i, null);
+    }
+  }
+}
+```
+
+**常见问题**
+
+- 车型 ID 就是资源包 `mtr_custom_resources.json`（或 MTR 4 车辆 JSON）里的 ID，大小写和资源包里一致。不确定时可以在 `create` 里用 `for (let i = 0; i < train.trainCars(); i++) print(i + ": " + train.carTypeId(i));` 打出来看，开着 `enableRenderDiagnostics` 时会写进日志。`carTypeIds()` 返回的是 Java 数组，能用 `length` 和 `[i]`，但没有 `join`、`map` 这些 JS 数组方法。
+- 写循环时不要用 `t = t + train.trainCars() - 1` 这类步长：车组只有 1 节车时步长是 0，循环会卡死。要处理「第一节和最后一节」，直接写 `0` 和 `train.trainCars() - 1`。
+
+---
+
 ## 车辆灯光
 
 默认开启。列车上线运行时，车头亮起车头灯，车尾亮起红色尾灯。车头灯有一道柔和的光束，并逐像素照亮前方的轨道、地面和建筑；环境越暗越明显。开着 Iris 光影时同样有效。
@@ -523,6 +596,19 @@ RTE 给 MTR 的铁路仪表板地图加了：
 ### 灯的位置
 
 没有定义灯光的车辆，RTE 会从模型里找车灯：MTR 4 资源包按 `ON_ROUTE_FORWARDS` / `ON_ROUTE_BACKWARDS` 等条件的发光部件找；MTR 3 的 JSON 资源包读 `LIGHTS` 阶段的部件；脚本列车读脚本画出的发光材质。都找不到时，按车体尺寸估一个位置。
+
+### 车灯编辑器
+
+*1.0.0 起提供。*
+
+在游戏里直接调整某个车型的车灯。两个入口：乘车时按 `I` 打开列车界面，点「编辑车灯」（编辑你乘坐的这列车）；或者按 `O` 打开设置，在车辆灯光下面点「编辑车灯」（编辑离你最近的那节车）。最好对着一列停着的车调。
+
+- 打开后镜头会绕着选中的那节车转，面板外就是 3D 视口，操作和 Blockbench 一样：左键拖动旋转，右键或中键拖动平移，滚轮缩放，WASD 前后左右移动焦点，空格上升、Shift 下降。「对准选中的灯」「对准整节车」可以快速切换焦点。
+- 每盏灯在车上画一个方块和一条照射方向线（实心是原灯，镜像出来的那盏也会画出）。左键点方块选中，选中后出现红、绿、蓝三根轴（x 向右、y 向上、z 向车头），按住拖动就沿该轴移动，也可以在面板里直接输入坐标。编辑时所有灯都点亮，光束和炫光实时可见。
+- 可以调整类型、照射方向、颜色、亮度、光斑大小、闪烁和左右镜像；「添加 / 复制」会复制当前选中的灯。
+- 「上一节车」「下一节车」切换要编辑的车厢。同一车型的头车、中间车、尾车是不同的车型，各自单独保存。
+- 「保存」写入本机的 `config/rte/vehicle_lights/`，优先于资源包定义和自动识别；「恢复自动识别」删除本机设置。
+- 「导出资源包文件」把所有本机设置合并成一份 `rte_vehicle_lights.json`，放进资源包的 `assets/<命名空间>/` 下就能随包发布。
 
 ### 资源包自定义灯光
 
